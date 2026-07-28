@@ -1,0 +1,492 @@
+{
+ "updated": "2026-07-28",
+ "source": "GroceryWatchList / GrocerySpy / Grocerize / catalogue checks",
+ "prices": {
+  "chicken": {
+   "w": 13.5,
+   "c": 14.5,
+   "a": 12.56,
+   "src": "ind"
+  },
+  "mince": {
+   "w": 9,
+   "c": 9,
+   "a": 7.99,
+   "src": "live"
+  },
+  "salmon": {
+   "w": 19,
+   "c": 18.5,
+   "a": 17.21,
+   "src": "ind"
+  },
+  "steak": {
+   "w": 26,
+   "c": 27,
+   "a": 24.18,
+   "src": "ind"
+  },
+  "schnitzel": {
+   "w": 11,
+   "c": 12,
+   "a": 10.23,
+   "src": "ind"
+  },
+  "prawns": {
+   "w": 14,
+   "c": 13.5,
+   "a": 12.56,
+   "src": "ind"
+  },
+  "kievs": {
+   "w": 9,
+   "c": 9.5,
+   "a": 8.37,
+   "src": "ind"
+  },
+  "pies": {
+   "w": 8.5,
+   "c": 8.9,
+   "a": 7.91,
+   "src": "ind"
+  },
+  "gyoza": {
+   "w": 8,
+   "c": 8.5,
+   "a": null,
+   "src": "ind"
+  },
+  "frozenVeg": {
+   "w": 3.5,
+   "c": 3.6,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "spinach": {
+   "w": 2.5,
+   "c": 2.5,
+   "a": 2.33,
+   "src": "ind"
+  },
+  "filo": {
+   "w": 4.5,
+   "c": 4.5,
+   "a": 4.19,
+   "src": "ind"
+  },
+  "eggs": {
+   "w": 6.2,
+   "c": 6.2,
+   "a": 5,
+   "src": "live"
+  },
+  "cheese": {
+   "w": 8.5,
+   "c": 8.9,
+   "a": 7.91,
+   "src": "ind"
+  },
+  "feta": {
+   "w": 4,
+   "c": 4.2,
+   "a": 3.72,
+   "src": "ind"
+  },
+  "sourCream": {
+   "w": 2.5,
+   "c": 2.5,
+   "a": 2.33,
+   "src": "ind"
+  },
+  "yoghurt": {
+   "w": 7,
+   "c": 7.5,
+   "a": 6.51,
+   "src": "ind"
+  },
+  "rice": {
+   "w": 2.5,
+   "c": 2.5,
+   "a": 2.29,
+   "src": "live"
+  },
+  "spaghetti": {
+   "w": 1,
+   "c": 1.95,
+   "a": 0.89,
+   "src": "live"
+  },
+  "riceNoodles": {
+   "w": 2.5,
+   "c": 2.6,
+   "a": 2.33,
+   "src": "ind"
+  },
+  "hokkien": {
+   "w": 2.2,
+   "c": 2.3,
+   "a": 2.05,
+   "src": "ind"
+  },
+  "cannedTom": {
+   "w": 1.1,
+   "c": 1.1,
+   "a": 0.95,
+   "src": "live"
+  },
+  "coconut": {
+   "w": 3.2,
+   "c": 3.2,
+   "a": 2.98,
+   "src": "live"
+  },
+  "curry": {
+   "w": 3.9,
+   "c": 3.9,
+   "a": null,
+   "src": "ind"
+  },
+  "redPaste": {
+   "w": 3.9,
+   "c": 3.9,
+   "a": 3.63,
+   "src": "ind"
+  },
+  "kormaPaste": {
+   "w": 3.6,
+   "c": 3.6,
+   "a": 3.35,
+   "src": "ind"
+  },
+  "bcSauce": {
+   "w": 3.15,
+   "c": 3.9,
+   "a": 2.93,
+   "src": "live"
+  },
+  "ssSauce": {
+   "w": 3,
+   "c": 3.2,
+   "a": 2.79,
+   "src": "ind"
+  },
+  "ptSauce": {
+   "w": 4,
+   "c": 4.2,
+   "a": 3.72,
+   "src": "ind"
+  },
+  "peanutButter": {
+   "w": 4,
+   "c": 4,
+   "a": 3.72,
+   "src": "ind"
+  },
+  "soy": {
+   "w": 2.5,
+   "c": 2.5,
+   "a": 2.33,
+   "src": "ind"
+  },
+  "tortillas": {
+   "w": 4.2,
+   "c": 4.2,
+   "a": 3.91,
+   "src": "ind"
+  },
+  "beans": {
+   "w": 1.4,
+   "c": 1.4,
+   "a": 1.3,
+   "src": "ind"
+  },
+  "cornChips": {
+   "w": 3.8,
+   "c": 3.8,
+   "a": 3.53,
+   "src": "ind"
+  },
+  "salsa": {
+   "w": 3.2,
+   "c": 3.4,
+   "a": 2.98,
+   "src": "ind"
+  },
+  "tacoSeas": {
+   "w": 1.4,
+   "c": 1.4,
+   "a": 1.3,
+   "src": "ind"
+  },
+  "cashews": {
+   "w": 3.5,
+   "c": 3.7,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "broccoli": {
+   "w": 1.9,
+   "c": 2.1,
+   "a": 1.77,
+   "src": "ind"
+  },
+  "capsicum": {
+   "w": 2.2,
+   "c": 2.5,
+   "a": 2.05,
+   "src": "ind"
+  },
+  "carrots": {
+   "w": 2,
+   "c": 2.4,
+   "a": 1.89,
+   "src": "live"
+  },
+  "onion": {
+   "w": 0.63,
+   "c": 0.84,
+   "a": 0.59,
+   "src": "live"
+  },
+  "garlic": {
+   "w": 1.5,
+   "c": 1.6,
+   "a": 1.4,
+   "src": "ind"
+  },
+  "potatoes": {
+   "w": 5.5,
+   "c": 5.9,
+   "a": 5.12,
+   "src": "ind"
+  },
+  "coriander": {
+   "w": 2.8,
+   "c": 3,
+   "a": 2.6,
+   "src": "ind"
+  },
+  "slawKit": {
+   "w": 4,
+   "c": 4.5,
+   "a": 3.72,
+   "src": "ind"
+  },
+  "lemon": {
+   "w": 1,
+   "c": 1.1,
+   "a": 0.93,
+   "src": "ind"
+  },
+  "banana": {
+   "w": 0.91,
+   "c": 0.83,
+   "a": 0.81,
+   "src": "live"
+  },
+  "mushrooms": {
+   "w": 3.5,
+   "c": 3.8,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "avocado": {
+   "w": 1.9,
+   "c": 1.8,
+   "a": 1.67,
+   "src": "ind"
+  },
+  "weetbix": {
+   "w": 5,
+   "c": 5,
+   "a": 3.69,
+   "src": "live"
+  },
+  "cucumber": {
+   "w": 1.9,
+   "c": 1.9,
+   "a": 1.77,
+   "src": "ind"
+  },
+  "couscous": {
+   "w": 2.6,
+   "c": 2.8,
+   "a": 2.42,
+   "src": "ind"
+  },
+  "pestoMeal": {
+   "w": 6.5,
+   "c": 6.5,
+   "a": null,
+   "src": "ind"
+  },
+  "smokyMeal": {
+   "w": 7,
+   "c": 7,
+   "a": null,
+   "src": "ind"
+  },
+  "lemonPepMeal": {
+   "w": 6.5,
+   "c": 6.5,
+   "a": null,
+   "src": "ind"
+  },
+  "rendangMeal": {
+   "w": 7,
+   "c": 7,
+   "a": null,
+   "src": "ind"
+  },
+  "lettuce": {
+   "w": 2.5,
+   "c": 2.5,
+   "a": 2.33,
+   "src": "ind"
+  },
+  "bacon": {
+   "w": 6,
+   "c": 6.5,
+   "a": 5.58,
+   "src": "ind"
+  },
+  "ham": {
+   "w": 4.5,
+   "c": 4.7,
+   "a": 4.19,
+   "src": "ind"
+  },
+  "milk": {
+   "w": 3.1,
+   "c": 3.1,
+   "a": 2.95,
+   "src": "ind"
+  },
+  "butter": {
+   "w": 4.5,
+   "c": 4.5,
+   "a": 4.19,
+   "src": "live"
+  },
+  "bread": {
+   "w": 3.5,
+   "c": 3.5,
+   "a": 2.49,
+   "src": "live"
+  },
+  "rolls": {
+   "w": 3.5,
+   "c": 3.5,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "oats": {
+   "w": 1.6,
+   "c": 2.4,
+   "a": 1.99,
+   "src": "live"
+  },
+  "tuna": {
+   "w": 5.5,
+   "c": 5.8,
+   "a": 5.12,
+   "src": "ind"
+  },
+  "penne": {
+   "w": 1.2,
+   "c": 1.2,
+   "a": 1.12,
+   "src": "ind"
+  },
+  "stock": {
+   "w": 2,
+   "c": 2.1,
+   "a": 1.86,
+   "src": "ind"
+  },
+  "tomPaste": {
+   "w": 1.6,
+   "c": 1.7,
+   "a": 1.49,
+   "src": "ind"
+  },
+  "honey": {
+   "w": 4.8,
+   "c": 5,
+   "a": 4.46,
+   "src": "ind"
+  },
+  "naan": {
+   "w": 4,
+   "c": 4.2,
+   "a": 3.72,
+   "src": "ind"
+  },
+  "cherryTom": {
+   "w": 3.5,
+   "c": 3.9,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "chickpeas": {
+   "w": 1.3,
+   "c": 1.4,
+   "a": 1.21,
+   "src": "ind"
+  },
+  "corn": {
+   "w": 1.6,
+   "c": 1.7,
+   "a": 1.49,
+   "src": "ind"
+  },
+  "hmDressing": {
+   "w": 3.8,
+   "c": 4,
+   "a": 3.53,
+   "src": "ind"
+  },
+  "padThaiKit": {
+   "w": 6.5,
+   "c": 6.8,
+   "a": null,
+   "src": "ind"
+  },
+  "satayJar": {
+   "w": 3.5,
+   "c": 3.7,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "cashewJar": {
+   "w": 3.5,
+   "c": 3.7,
+   "a": 3.26,
+   "src": "ind"
+  },
+  "kidneyBeans": {
+   "w": 1.4,
+   "c": 1.4,
+   "a": 1.3,
+   "src": "ind"
+  },
+  "burritoKit": {
+   "w": 7,
+   "c": 7.5,
+   "a": 6.51,
+   "src": "ind"
+  },
+  "guac": {
+   "w": 4,
+   "c": 4.2,
+   "a": 3.72,
+   "src": "ind"
+  },
+  "spanakopitaP": {
+   "w": 9,
+   "c": 9.5,
+   "a": 8.37,
+   "src": "ind"
+  }
+ }
+}

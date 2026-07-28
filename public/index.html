@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1E2761">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="PantryPicks">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>PantryPicks — Weekly Shop Optimiser</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --page: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --status-good: #0ca30c;
+    --status-warning: #fab219;
+    --status-serious: #ec835a;
+    --status-critical: #d03b3b;
+    --success-text: #006300;
+    --chip: #f0efec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --page: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255,255,255,0.10);
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --success-text: #0ca30c;
+      --chip: #383835;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --success-text: #0ca30c;
+    --chip: #383835;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--text-primary);
+    padding: 28px 20px 40px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+  }
+
+  /* Header */
+  header {
+    display: flex; align-items: center; gap: 14px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--series-1) 7%, var(--surface-1)), var(--surface-1) 65%);
+    border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+  }
+  .logo {
+    width: 46px; height: 46px; flex: none; border-radius: 13px;
+    background: color-mix(in srgb, var(--series-1) 12%, var(--surface-1));
+    border: 1px solid color-mix(in srgb, var(--series-1) 30%, transparent);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo svg { width: 26px; height: 26px; }
+  header h1 { font-size: 24px; font-weight: 750; letter-spacing: -0.02em; line-height: 1.15; }
+  header .sub { color: var(--text-secondary); font-size: 13px; margin-top: 2px; max-width: 760px; }
+  .badge {
+    display: inline-block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 2px 9px; border-radius: 999px; vertical-align: 3px; margin-left: 8px;
+    color: var(--series-1); background: color-mix(in srgb, var(--series-1) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--series-1) 28%, transparent);
+  }
+
+  /* Sections */
+  section { margin-top: 28px; }
+  h2 { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .step {
+    width: 22px; height: 22px; flex: none; border-radius: 999px; font-size: 11.5px; font-weight: 750;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--series-1); background: color-mix(in srgb, var(--series-1) 11%, transparent);
+    border: 1px solid color-mix(in srgb, var(--series-1) 30%, transparent);
+  }
+  h2 .hint { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .pplsel {
+    font: inherit; font-size: 13px; font-weight: 650; color: var(--text-primary);
+    background: var(--surface-1); border: 1px solid var(--baseline); border-radius: 8px;
+    padding: 3px 7px; margin: 0 2px; cursor: pointer;
+  }
+  .hspace { flex: 1; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tab {
+    font: inherit; font-size: 13px; font-weight: 600; padding: 6px 15px; cursor: pointer;
+    background: var(--surface-1); border: 1px solid var(--border); color: var(--text-secondary);
+    border-radius: 999px; transition: all 0.15s ease;
+  }
+  .tab:hover { color: var(--text-primary); border-color: var(--baseline); }
+  .tab.on {
+    color: var(--series-1); font-weight: 700;
+    background: color-mix(in srgb, var(--series-1) 9%, var(--surface-1));
+    border-color: color-mix(in srgb, var(--series-1) 45%, transparent);
+  }
+  .tab .n {
+    font-size: 11px; font-weight: 750; border-radius: 999px; padding: 0 6px; margin-left: 5px;
+    background: var(--series-1); color: #fff;
+  }
+  .tab:not(.on) .n { background: var(--chip); color: var(--text-secondary); border: 1px solid var(--border); }
+
+  /* Meal cards */
+  .meals { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .meal {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 13px;
+    padding: 12px 13px 11px; cursor: pointer; user-select: none; position: relative;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+  }
+  .meal:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(11,11,11,0.08); border-color: var(--baseline); }
+  .meal.on {
+    border-color: color-mix(in srgb, var(--series-1) 55%, transparent);
+    background: color-mix(in srgb, var(--series-1) 6%, var(--surface-1));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--series-1) 45%, transparent);
+  }
+  .meal .emo { font-size: 20px; line-height: 1; margin-bottom: 6px; }
+  .meal .nm { font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; padding-right: 20px; }
+  .meal .ings { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .meal .tick {
+    position: absolute; top: 10px; right: 10px; width: 19px; height: 19px; border-radius: 999px;
+    background: var(--series-1); color: #fff; font-size: 11px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: scale(0.6); transition: all 0.15s ease;
+  }
+  .meal.on .tick { opacity: 1; transform: scale(1); }
+  .mult {
+    display: inline-flex; align-items: center; gap: 2px; margin-top: 8px;
+    background: var(--surface-1); border: 1px solid color-mix(in srgb, var(--series-1) 35%, transparent);
+    border-radius: 999px; padding: 1px 3px;
+  }
+  .mult .mval { font-size: 11.5px; font-weight: 750; color: var(--series-1); min-width: 24px; text-align: center; font-variant-numeric: tabular-nums; }
+  .mbtn {
+    width: 18px; height: 18px; border-radius: 999px; border: none; cursor: pointer;
+    background: transparent; color: var(--text-secondary); font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; line-height: 1; padding: 0;
+  }
+  .mbtn:hover { background: color-mix(in srgb, var(--series-1) 12%, transparent); color: var(--series-1); }
+
+  /* Stat tiles */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .tile {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 16px 13px; box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+  }
+  .tile .lbl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+  .tile .val { font-size: 28px; font-weight: 750; letter-spacing: -0.02em; margin-top: 3px; }
+  .tile .sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 2px; }
+  .tile .sub .good { color: var(--success-text); font-weight: 650; }
+  .tile .sub .warn { color: var(--status-critical); font-weight: 650; }
+  .meter { height: 5px; border-radius: 3px; background: var(--grid); margin-top: 9px; overflow: hidden; }
+  .meter .mfill { height: 100%; border-radius: 3px; background: var(--series-1); transition: width 0.3s ease; }
+  .meter .mfill.bad { background: var(--status-critical); }
+  .meter .mfill.ok { background: var(--status-good); }
+
+  /* Store comparison */
+  .storeCard { padding: 14px 18px 15px; }
+  .srow { display: grid; grid-template-columns: 170px 1fr 96px; align-items: center; gap: 12px; padding: 6px 0; }
+  .srow .sname { font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+  .srow .sname .stag { display: block; width: fit-content; margin-top: 3px; }
+  .srow.best .sname { color: var(--text-primary); }
+  .srow .strack { height: 18px; border-radius: 4px; position: relative; }
+  .srow .sbar {
+    height: 100%; border-radius: 4px; background: var(--baseline);
+    min-width: 3px; transition: width 0.3s ease; position: relative;
+  }
+  .srow.best .sbar { background: var(--series-1); }
+  .srow .sval { font-size: 13.5px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .srow.best .sval { color: var(--series-1); }
+  .srow .snote { font-size: 11px; font-weight: 400; color: var(--muted); margin-left: 2px; }
+  .stag {
+    font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--series-1); background: color-mix(in srgb, var(--series-1) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--series-1) 28%, transparent);
+    border-radius: 999px; padding: 1px 7px; white-space: nowrap;
+  }
+
+  /* Swaps */
+  .swap {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 13px;
+    padding: 12px 16px; margin-bottom: 8px; font-size: 13px; display: flex; gap: 12px;
+    align-items: center; justify-content: space-between; flex-wrap: wrap;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+  }
+  .swap .why { color: var(--text-secondary); font-size: 12px; margin-top: 3px; max-width: 640px; }
+  .swap .arrow { color: var(--series-1); font-weight: 800; }
+  .save {
+    font-size: 12.5px; font-weight: 750; white-space: nowrap; color: var(--success-text);
+    background: color-mix(in srgb, var(--status-good) 11%, transparent);
+    border: 1px solid color-mix(in srgb, var(--status-good) 30%, transparent);
+    border-radius: 999px; padding: 3px 10px;
+  }
+  .swap button {
+    font: inherit; font-size: 12.5px; font-weight: 700; padding: 6px 16px; border-radius: 9px;
+    border: none; background: var(--series-1); color: #fff; cursor: pointer;
+    transition: filter 0.12s ease, transform 0.12s ease;
+  }
+  .swap button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .noswap {
+    color: var(--text-secondary); font-size: 13px; padding: 12px 16px;
+    background: var(--surface-1); border: 1px dashed var(--baseline); border-radius: 13px;
+  }
+
+  /* Shopping list */
+  .tablewrap {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04); overflow-x: auto;
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  thead th {
+    text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--grid);
+  }
+  td { padding: 8px 12px; font-size: 13px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr.aisle td {
+    font-size: 11px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--text-secondary); background: var(--chip); padding: 6px 12px;
+  }
+  tbody tr:not(.aisle):hover td { background: color-mix(in srgb, var(--series-1) 3%, transparent); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .iname { font-weight: 650; }
+  .isub { font-size: 11px; color: var(--muted); }
+  .src-live { color: var(--success-text); font-weight: 600; }
+  .util { width: 140px; }
+  .bar { height: 8px; background: var(--grid); border-radius: 4px; overflow: hidden; position: relative; }
+  .bar .fill { height: 100%; background: var(--series-1); border-radius: 4px 0 0 4px; }
+  .util .cap { font-size: 10.5px; color: var(--muted); margin-top: 3px; white-space: nowrap; }
+  .util .cap .w { color: var(--status-critical); font-weight: 600; }
+  input.price {
+    width: 62px; font: inherit; font-size: 12.5px; text-align: right; font-variant-numeric: tabular-nums;
+    background: transparent; color: var(--text-primary); border: 1px solid transparent; border-radius: 6px; padding: 3px 5px;
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  input.price:hover, input.price:focus { border-color: var(--baseline); outline: none; background: var(--page); }
+  input.price::placeholder { color: var(--muted); font-size: 11px; }
+  .cheaper { font-weight: 750; color: var(--series-1); }
+  .storeb {
+    display: inline-block; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 4px;
+    background: var(--series-1); color: #fff; margin-left: 5px; vertical-align: 1px;
+  }
+  /* Week planner */
+  .planwrap {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(11,11,11,0.04); overflow-x: auto; padding: 6px;
+  }
+  .plangrid { width: 100%; border-collapse: collapse; min-width: 720px; }
+  .plangrid th {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); padding: 7px 6px; text-align: center; border-bottom: 1px solid var(--grid);
+  }
+  .plangrid td { padding: 4px; border-bottom: none; }
+  .plangrid td.rowlbl {
+    font-size: 11px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;
+    padding-right: 10px; width: 1%;
+  }
+  .cellsel {
+    width: 100%; font: inherit; font-size: 12px; color: var(--text-primary);
+    background: var(--page); border: 1px dashed var(--baseline); border-radius: 8px;
+    padding: 6px 4px; cursor: pointer; text-align: center; text-align-last: center;
+  }
+  .cellsel.filled { border-style: solid; border-color: color-mix(in srgb, var(--series-1) 45%, transparent);
+    background: color-mix(in srgb, var(--series-1) 7%, var(--surface-1)); font-weight: 600; }
+  .planchip {
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 8px;
+    font-size: 11px; font-weight: 700; color: var(--series-1);
+    background: color-mix(in srgb, var(--series-1) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--series-1) 30%, transparent);
+    border-radius: 999px; padding: 2px 9px;
+  }
+
+  /* Store mode overlay */
+  .overlay {
+    position: fixed; inset: 0; z-index: 50; background: rgba(11,11,11,0.45);
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .overlay[hidden] { display: none; }
+  .ovpanel {
+    background: var(--page); border: 1px solid var(--border); border-radius: 16px;
+    width: 100%; max-width: 480px; max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 12px 40px rgba(11,11,11,0.3);
+  }
+  .ovhead { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--grid); }
+  .ovtitle { font-size: 16px; font-weight: 750; }
+  .ovsub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  .ovbody { overflow-y: auto; padding: 6px 10px 10px; }
+  .ovfoot { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--grid); }
+  .ovaisle { font-size: 10.5px; font-weight: 750; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 10px 6px 4px; }
+  .sitem {
+    display: flex; align-items: center; gap: 12px; padding: 10px 8px; cursor: pointer; user-select: none;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 5px;
+  }
+  .sitem .sbox {
+    width: 22px; height: 22px; flex: none; border-radius: 7px; border: 1.5px solid var(--baseline);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff;
+  }
+  .sitem.done { opacity: 0.45; }
+  .sitem.done .sbox { background: var(--status-good); border-color: var(--status-good); }
+  .sitem.done .slbl { text-decoration: line-through; }
+  .sitem .slbl { font-size: 13.5px; font-weight: 600; }
+  .sitem .ssub { font-size: 11px; color: var(--muted); }
+  .sitem .sprice { margin-left: auto; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .xbtn-primary { background: var(--series-1); color: #fff; border-color: var(--series-1); }
+  .xbtn-primary:hover { color: #fff; filter: brightness(1.1); }
+
+  /* Sticky totals bar */
+  .sticky {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+    background: color-mix(in srgb, var(--surface-1) 88%, transparent);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    transform: translateY(-100%); transition: transform 0.2s ease;
+  }
+  .sticky.show { transform: translateY(0); }
+  .sticky .sinner {
+    max-width: 1120px; margin: 0 auto; padding: 8px 20px;
+    display: flex; align-items: center; gap: 18px; font-size: 13px;
+  }
+  .sticky .sv { font-weight: 750; font-variant-numeric: tabular-nums; }
+  .sticky .sl { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-right: 5px; }
+  .sticky .warnv { color: var(--status-critical); }
+  .sticky .okv { color: var(--success-text); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 12px); z-index: 60;
+    background: var(--text-primary); color: var(--page); font-size: 13px; font-weight: 600;
+    padding: 9px 18px; border-radius: 999px; box-shadow: 0 6px 24px rgba(11,11,11,0.25);
+    opacity: 0; pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease;
+    max-width: 90vw; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* Today column in planner */
+  .plangrid th.today { color: var(--series-1); }
+  .plangrid th.today::after { content: '·'; display: block; line-height: 0.4; font-size: 18px; }
+  .plangrid td.today { background: color-mix(in srgb, var(--series-1) 5%, transparent); border-radius: 8px; }
+
+  /* Pantry check */
+  .pchips { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+  .pchip {
+    display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+    padding: 9px 12px; box-shadow: 0 1px 2px rgba(11,11,11,0.04);
+    transition: border-color 0.12s ease, background 0.12s ease;
+  }
+  .pchip:hover { border-color: var(--baseline); }
+  .pchip .pbox {
+    width: 18px; height: 18px; flex: none; border-radius: 6px; border: 1.5px solid var(--baseline);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800;
+    color: #fff; background: transparent; transition: all 0.12s ease;
+  }
+  .pchip.on { border-color: color-mix(in srgb, var(--status-good) 45%, transparent); background: color-mix(in srgb, var(--status-good) 6%, var(--surface-1)); }
+  .pchip.on .pbox { background: var(--status-good); border-color: var(--status-good); }
+  .pchip .pnm { font-size: 12.5px; font-weight: 650; }
+  .pchip .psub { font-size: 11px; color: var(--muted); }
+  .pchip .psave { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--success-text); white-space: nowrap; }
+  .nopantry { color: var(--muted); font-size: 13px; }
+  tr.inpantry td { opacity: 0.55; }
+  .pantryb {
+    font-size: 10px; font-weight: 700; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+    color: var(--success-text); background: color-mix(in srgb, var(--status-good) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--status-good) 28%, transparent); vertical-align: 1px;
+  }
+  footer { margin-top: 30px; font-size: 11.5px; color: var(--muted); line-height: 1.65; border-top: 1px solid var(--grid); padding-top: 14px; }
+  .xbtn {
+    font: inherit; font-size: 12px; font-weight: 650; padding: 5px 14px; border-radius: 9px;
+    border: 1px solid var(--baseline); background: var(--surface-1); color: var(--text-primary); cursor: pointer;
+    transition: all 0.12s ease;
+  }
+  .xbtn:hover { border-color: var(--series-1); color: var(--series-1); }
+  button:focus-visible, .tab:focus-visible, select:focus-visible, input:focus-visible {
+    outline: 2px solid var(--series-1); outline-offset: 1px;
+  }
+  .tile { transition: transform 0.12s ease, box-shadow 0.12s ease; }
+  .tile:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(11,11,11,0.07); }
+  .swap { border-left: 3px solid color-mix(in srgb, var(--status-good) 55%, transparent); }
+  @media (max-width: 640px) {
+    body { padding: 16px 12px 30px; }
+    header { padding: 14px; }
+    header h1 { font-size: 20px; }
+    .meals { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 7px; }
+    .tiles { grid-template-columns: repeat(2, 1fr); }
+    .srow { grid-template-columns: 112px 1fr 80px; gap: 8px; }
+    .srow .sname { white-space: normal; }
+    .sticky .sinner { gap: 12px; padding: 7px 12px; overflow-x: auto; }
+  }
+</style>
+</head>
+<body class="viz-root">
+<div class="sticky" id="stickybar"><div class="sinner" id="stickyinner"></div></div>
+<div id="toast"></div>
+<div class="wrap">
+  <header>
+    <div class="logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--series-1)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="9.5" cy="20" r="1.4" fill="var(--series-1)" stroke="none"/>
+        <circle cx="17.5" cy="20" r="1.4" fill="var(--series-1)" stroke="none"/>
+        <path d="M3 3.5h2.4l2.1 12h11.1l2.2-8.5H6.2"/>
+        <path d="M11 7.5l2 2 3.5-3.5" stroke-width="2.1"/>
+      </svg>
+    </div>
+    <div>
+      <h1>PantryPicks <span class="badge">beta</span></h1>
+      <div class="sub">Plan the week's meals, get the cheapest waste-smart shop across Woolworths, Coles and Aldi.</div>
+    </div>
+  </header>
+
+  <section>
+    <h2><span class="step">1</span> Pick your meals
+      <label style="font-weight:400;font-size:13px;color:var(--text-secondary)">for
+        <select id="people" class="pplsel"></select>
+        people</label>
+      <span class="hint" id="pickCount"></span></h2>
+    <div class="tabs" id="tabs"></div>
+    <div class="meals" id="meals"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">2</span> Plan your week <span class="hint">optional · drop picked meals onto days — repeats set themselves</span></h2>
+    <div class="planwrap"><table class="plangrid" id="plangrid"></table></div>
+  </section>
+
+  <section>
+    <h2><span class="step">3</span> This week's shop</h2>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">4</span> Where to shop <span class="hint">totals for the same list, four shopping strategies</span></h2>
+    <div class="card storeCard" id="stores"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">5</span> Optimiser suggestions <span class="hint">like-for-like swaps (breakfast↔breakfast, dinner↔dinner) that cut cost + waste</span></h2>
+    <div id="swaps"></div>
+  </section>
+
+  <section id="pantrySec">
+    <h2><span class="step">6</span> Check your pantry first <span class="hint">multi-use packs on this list · tick what you already have and it comes off the bill</span></h2>
+    <div class="pchips" id="pantry"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">7</span> Shopping list <span class="hint">buy column rounds up to real packs · bar shows how much of what you buy gets used</span>
+      <span class="hspace"></span>
+      <span style="display:flex;gap:8px;align-items:center">
+        <span id="copyFb" style="font-size:12px;color:var(--success-text);font-weight:650;visibility:hidden">✓ copied</span>
+        <button id="btnStore" class="xbtn xbtn-primary">🛒 Store mode</button>
+        <button id="btnCopy" class="xbtn">Copy list</button>
+        <button id="btnCsv" class="xbtn">Download CSV</button>
+      </span></h2>
+    <div class="tablewrap"><table id="list"></table></div>
+  </section>
+
+  <div id="storeMode" class="overlay" hidden>
+    <div class="ovpanel">
+      <div class="ovhead">
+        <div>
+          <div class="ovtitle">🛒 This week's shop</div>
+          <div class="ovsub" id="ovsub"></div>
+        </div>
+        <button class="xbtn" id="ovClose">Done</button>
+      </div>
+      <div class="ovbody" id="ovlist"></div>
+      <div class="ovfoot">
+        <button class="xbtn" id="ovShare">Share with partner</button>
+        <span id="ovFb" style="font-size:12px;color:var(--success-text);font-weight:650;visibility:hidden">✓ copied — paste anywhere</span>
+      </div>
+    </div>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+// ---------------- DATA ----------------
+// Prices in AUD. src:'live' = refreshed 28 Jul 2026 from GroceryWatchList (22 Jul snapshot),
+// GrocerySpy staples check (26 Jul), Grocerize, Pinch and OzBargain regular-price checks (Jul).
+// src:'ind' = indicative typical shelf price.
+// keeps:false means a leftover part-pack is likely wasted (fresh/opened).
+const ING = {
+  chicken:  { name:'Chicken breast fillets', aisle:'Meat & Seafood', unit:'g',     pack:1000, packLabel:'1kg pack',      w:13.50, c:14.50, keeps:false, src:'ind'  },
+  mince:    { name:'Beef mince',             aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack',     w:9.00,  c:9.00,  keeps:false, src:'live' },
+  salmon:   { name:'Salmon fillets',         aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack',     w:19.00, c:18.50, keeps:false, src:'ind'  },
+  steak:    { name:'Porterhouse steak',      aisle:'Meat & Seafood', unit:'g',     pack:800,  packLabel:'4×200g pack',   w:26.00, c:27.00, keeps:false, src:'ind'  },
+  schnitzel:{ name:'Chicken schnitzel',      aisle:'Meat & Seafood', unit:'g',     pack:1000, packLabel:'1kg pack',      w:11.00, c:12.00, keeps:false, src:'ind'  },
+  prawns:   { name:'Raw prawns (frozen)',    aisle:'Freezer',        unit:'g',     pack:500,  packLabel:'500g bag',      w:14.00, c:13.50, keeps:true,  src:'ind'  },
+  kievs:    { name:'Chicken kievs',          aisle:'Freezer',        unit:'pcs',   pack:4,    packLabel:'4 pack (700g)', w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
+  pies:     { name:'Meat pies',              aisle:'Freezer',        unit:'pcs',   pack:4,    packLabel:'4 pack',        w:8.50,  c:8.90,  keeps:true,  src:'ind'  },
+  gyoza:    { name:'Prawn gyoza (frozen)',   aisle:'Freezer',        unit:'pcs',   pack:20,   packLabel:'20 pack',       w:8.00,  c:8.50,  keeps:true,  src:'ind'  },
+  frozenVeg:{ name:'Frozen veg mix',         aisle:'Freezer',        unit:'g',     pack:1000, packLabel:'1kg bag',       w:3.50,  c:3.60,  keeps:true,  src:'ind'  },
+  spinach:  { name:'Frozen spinach',         aisle:'Freezer',        unit:'g',     pack:250,  packLabel:'250g pack',     w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
+  filo:     { name:'Filo pastry',            aisle:'Freezer',        unit:'g',     pack:375,  packLabel:'375g pack',     w:4.50,  c:4.50,  keeps:false, src:'ind'  },
+  eggs:     { name:'Free range eggs',        aisle:'Dairy & Eggs',   unit:'eggs',  pack:12,   packLabel:'dozen',         w:6.20,  c:6.20,  keeps:true,  src:'live' },
+  cheese:   { name:'Tasty cheese block',     aisle:'Dairy & Eggs',   unit:'g',     pack:500,  packLabel:'500g block',    w:8.50,  c:8.90,  keeps:true,  src:'ind'  },
+  feta:     { name:'Feta',                   aisle:'Dairy & Eggs',   unit:'g',     pack:200,  packLabel:'200g block',    w:4.00,  c:4.20,  keeps:false, src:'ind'  },
+  sourCream:{ name:'Sour cream',             aisle:'Dairy & Eggs',   unit:'g',     pack:300,  packLabel:'300g tub',      w:2.50,  c:2.50,  keeps:false, src:'ind'  },
+  yoghurt:  { name:'Greek yoghurt',          aisle:'Dairy & Eggs',   unit:'g',     pack:1000, packLabel:'1kg tub',       w:7.00,  c:7.50,  keeps:false, src:'ind'  },
+  rice:     { name:'Rice',                   aisle:'Pantry',         unit:'g',     pack:1000, packLabel:'1kg bag',       w:2.50,  c:2.50,  keeps:true,  src:'live' },
+  spaghetti:{ name:'Spaghetti',              aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g',          w:1.00,  c:1.95,  keeps:true,  src:'live' },
+  riceNoodles:{ name:'Rice stick noodles',   aisle:'Pantry',         unit:'g',     pack:250,  packLabel:'250g',          w:2.50,  c:2.60,  keeps:true,  src:'ind'  },
+  hokkien:  { name:'Hokkien noodles',        aisle:'Pantry',         unit:'g',     pack:440,  packLabel:'440g pack',     w:2.20,  c:2.30,  keeps:true,  src:'ind'  },
+  cannedTom:{ name:'Canned tomatoes',        aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.10,  c:1.10,  keeps:false, src:'live' },
+  coconut:  { name:'Coconut milk',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:3.20,  c:3.20,  keeps:false, src:'live' },
+  curry:    { name:'Green curry paste',      aisle:'Pantry',         unit:'g',     pack:220,  packLabel:'220g jar',      w:3.90,  c:3.90,  keeps:true,  src:'ind'  },
+  redPaste: { name:'Red curry paste',        aisle:'Pantry',         unit:'g',     pack:210,  packLabel:'210g jar',      w:3.90,  c:3.90,  keeps:true,  src:'ind'  },
+  kormaPaste:{ name:'Korma paste',           aisle:'Pantry',         unit:'g',     pack:285,  packLabel:'285g jar',      w:3.60,  c:3.60,  keeps:true,  src:'ind'  },
+  bcSauce:  { name:'Butter chicken sauce',   aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:3.15,  c:3.90,  keeps:false, src:'live' },
+  ssSauce:  { name:'Sweet & sour sauce',     aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:3.00,  c:3.20,  keeps:false, src:'ind'  },
+  ptSauce:  { name:'Pad thai sauce',         aisle:'Pantry',         unit:'g',     pack:265,  packLabel:'265g jar',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
+  peanutButter:{ name:'Peanut butter',       aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:4.00,  c:4.00,  keeps:true,  src:'ind'  },
+  soy:      { name:'Soy sauce',              aisle:'Pantry',         unit:'ml',    pack:250,  packLabel:'250ml',         w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
+  tortillas:{ name:'Tortillas',              aisle:'Pantry',         unit:'pcs',   pack:8,    packLabel:'8 pack',        w:4.20,  c:4.20,  keeps:true,  src:'ind'  },
+  beans:    { name:'Black beans',            aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.40,  c:1.40,  keeps:false, src:'ind'  },
+  cornChips:{ name:'Corn chips',             aisle:'Pantry',         unit:'g',     pack:230,  packLabel:'230g bag',      w:3.80,  c:3.80,  keeps:true,  src:'ind'  },
+  salsa:    { name:'Salsa',                  aisle:'Pantry',         unit:'g',     pack:300,  packLabel:'300g jar',      w:3.20,  c:3.40,  keeps:false, src:'ind'  },
+  tacoSeas: { name:'Taco seasoning',         aisle:'Pantry',         unit:'g',     pack:30,   packLabel:'30g sachet',    w:1.40,  c:1.40,  keeps:true,  src:'ind'  },
+  cashews:  { name:'Cashews',                aisle:'Pantry',         unit:'g',     pack:150,  packLabel:'150g bag',      w:3.50,  c:3.70,  keeps:true,  src:'ind'  },
+  broccoli: { name:'Broccoli',               aisle:'Fresh Produce',  unit:'g',     pack:340,  packLabel:'~340g head',    w:1.90,  c:2.10,  keeps:false, src:'ind'  },
+  capsicum: { name:'Capsicum',               aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:2.20,  c:2.50,  keeps:false, src:'ind'  },
+  carrots:  { name:'Carrots',                aisle:'Fresh Produce',  unit:'g',     pack:1000, packLabel:'1kg bag',       w:2.00,  c:2.40,  keeps:false, src:'live' },
+  onion:    { name:'Brown onion',            aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:0.63,  c:0.84,  keeps:true,  src:'live' },
+  garlic:   { name:'Garlic',                 aisle:'Fresh Produce',  unit:'cloves',pack:10,   packLabel:'bulb (~10)',    w:1.50,  c:1.60,  keeps:true,  src:'ind'  },
+  potatoes: { name:'Potatoes',               aisle:'Fresh Produce',  unit:'g',     pack:2000, packLabel:'2kg bag',       w:5.50,  c:5.90,  keeps:true,  src:'ind'  },
+  coriander:{ name:'Coriander',              aisle:'Fresh Produce',  unit:'bunch', pack:1,    packLabel:'bunch',         w:2.80,  c:3.00,  keeps:false, src:'ind'  },
+  slawKit:  { name:'Coleslaw kit',           aisle:'Fresh Produce',  unit:'g',     pack:400,  packLabel:'400g kit',      w:4.00,  c:4.50,  keeps:false, src:'ind'  },
+  lemon:    { name:'Lemon',                  aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.00,  c:1.10,  keeps:true,  src:'ind'  },
+  banana:   { name:'Bananas',                aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:0.91,  c:0.83,  keeps:false, src:'live' },
+  mushrooms:{ name:'Mushrooms',              aisle:'Fresh Produce',  unit:'g',     pack:200,  packLabel:'200g punnet',   w:3.50,  c:3.80,  keeps:false, src:'ind'  },
+  avocado:  { name:'Avocado',                aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.90,  c:1.80,  keeps:false, src:'ind'  },
+  weetbix:  { name:'Weet-Bix',               aisle:'Pantry',         unit:'g',     pack:575,  packLabel:'575g box',      w:5.00,  c:5.00,  keeps:true,  src:'live' },
+  cucumber: { name:'Cucumber',               aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.90,  c:1.90,  keeps:false, src:'ind'  },
+  couscous: { name:'Couscous',               aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g box',      w:2.60,  c:2.80,  keeps:true,  src:'ind'  },
+  pestoMeal:   { name:'Frozen pesto chicken penne meal',      aisle:'Freezer', unit:'each', pack:1, packLabel:'single meal', w:6.50, c:6.50, keeps:true, src:'ind' },
+  smokyMeal:   { name:'Frozen smoky beef & sweet potato meal',aisle:'Freezer', unit:'each', pack:1, packLabel:'single meal', w:7.00, c:7.00, keeps:true, src:'ind' },
+  lemonPepMeal:{ name:'Frozen lemon pepper chicken meal',     aisle:'Freezer', unit:'each', pack:1, packLabel:'single meal', w:6.50, c:6.50, keeps:true, src:'ind' },
+  rendangMeal: { name:'Frozen beef rendang meal',             aisle:'Freezer', unit:'each', pack:1, packLabel:'single meal', w:7.00, c:7.00, keeps:true, src:'ind' },
+  lettuce:  { name:'Lettuce',                aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:2.50,  c:2.50,  keeps:false, src:'ind'  },
+  bacon:    { name:'Bacon rashers',          aisle:'Meat & Seafood', unit:'g',     pack:250,  packLabel:'250g pack',     w:6.00,  c:6.50,  keeps:false, src:'ind'  },
+  ham:      { name:'Sliced ham',             aisle:'Meat & Seafood', unit:'g',     pack:200,  packLabel:'200g pack',     w:4.50,  c:4.70,  keeps:false, src:'ind'  },
+  milk:     { name:'Milk',                   aisle:'Dairy & Eggs',   unit:'ml',    pack:1000, packLabel:'1L',            w:3.10,  c:3.10,  keeps:false, src:'ind'  },
+  butter:   { name:'Butter',                 aisle:'Dairy & Eggs',   unit:'g',     pack:250,  packLabel:'250g block',    w:4.50,  c:4.50,  keeps:true,  src:'live' },
+  bread:    { name:'Wholemeal bread',        aisle:'Bakery',         unit:'g',     pack:700,  packLabel:'700g loaf',     w:3.50,  c:3.50,  keeps:true,  src:'live' },
+  rolls:    { name:'Bread rolls',            aisle:'Bakery',         unit:'pcs',   pack:6,    packLabel:'6 pack',        w:3.50,  c:3.50,  keeps:true,  src:'ind'  },
+  oats:     { name:'Rolled oats',            aisle:'Pantry',         unit:'g',     pack:750,  packLabel:'750g',          w:1.60,  c:2.40,  keeps:true,  src:'live' },
+  tuna:     { name:'Tuna in springwater',    aisle:'Pantry',         unit:'g',     pack:425,  packLabel:'425g can',      w:5.50,  c:5.80,  keeps:false, src:'ind'  },
+  penne:    { name:'Penne',                  aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g',          w:1.20,  c:1.20,  keeps:true,  src:'ind'  },
+  stock:    { name:'Veg stock',              aisle:'Pantry',         unit:'ml',    pack:1000, packLabel:'1L carton',     w:2.00,  c:2.10,  keeps:false, src:'ind'  },
+  tomPaste: { name:'Tomato paste',           aisle:'Pantry',         unit:'g',     pack:250,  packLabel:'250g tub',      w:1.60,  c:1.70,  keeps:true,  src:'ind'  },
+  honey:    { name:'Honey',                  aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g squeeze',  w:4.80,  c:5.00,  keeps:true,  src:'ind'  },
+  naan:     { name:'Naan bread',             aisle:'Bakery',         unit:'pcs',   pack:4,    packLabel:'4 pack',        w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
+  cherryTom:{ name:'Cherry tomatoes',        aisle:'Fresh Produce',  unit:'g',     pack:250,  packLabel:'250g punnet',   w:3.50,  c:3.90,  keeps:false, src:'ind'  },
+  chickpeas:{ name:'Chickpeas',              aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.30,  c:1.40,  keeps:false, src:'ind'  },
+  corn:     { name:'Corn kernels',           aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.60,  c:1.70,  keeps:false, src:'ind'  },
+  hmDressing:{ name:'Honey mustard dressing',aisle:'Pantry',         unit:'ml',    pack:250,  packLabel:'250ml bottle',  w:3.80,  c:4.00,  keeps:true,  src:'ind'  },
+  padThaiKit:{ name:'Pad thai meal kit',     aisle:'Pantry',         unit:'each',  pack:1,    packLabel:'kit box',       w:6.50,  c:6.80,  keeps:true,  src:'ind'  },
+  satayJar: { name:'Satay stir-fry sauce',   aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:3.50,  c:3.70,  keeps:false, src:'ind'  },
+  cashewJar:{ name:'Cashew chicken stir-fry sauce', aisle:'Pantry',  unit:'g',     pack:375,  packLabel:'375g jar',      w:3.50,  c:3.70,  keeps:false, src:'ind'  },
+  kidneyBeans:{ name:'Red kidney beans',     aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.40,  c:1.40,  keeps:false, src:'ind'  },
+  burritoKit:{ name:'Burrito kit (seasoning + salsa)', aisle:'Pantry', unit:'each', pack:1,   packLabel:'kit box',       w:7.00,  c:7.50,  keeps:true,  src:'ind'  },
+  guac:     { name:'Guacamole dip',          aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'200g tub',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
+  spanakopitaP:{ name:'Spanakopita (family size)', aisle:'Freezer',  unit:'each',  pack:1,    packLabel:'whole',         w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
+};
+
+// Aldi pricing: a = price, null = not stocked (limited range). Hand-set anchors below;
+// everything else defaults to ~7% under the cheaper major (indicative, editable in the list).
+const ALDI_NA = ['curry', 'padThaiKit', 'gyoza', 'pestoMeal', 'smokyMeal', 'lemonPepMeal', 'rendangMeal'];
+const ALDI_ANCHOR = { mince:7.99, eggs:5.00, spaghetti:0.89, rice:2.29, tomatoes:1.99, cannedTom:0.95, coconutMilk:2.79,
+  carrots:1.89, onions:0.59, butter:4.19, banana:0.81, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49 };
+for (const [k, g] of Object.entries(ING)) {
+  if (ALDI_NA.includes(k)) g.a = null;
+  else if (ALDI_ANCHOR[k] != null) g.a = ALDI_ANCHOR[k];
+  else g.a = Math.round(Math.min(g.w, g.c) * 0.93 * 100) / 100;
+}
+
+const RECIPES = [
+  // Dinners (serves 2) — Muz's spec
+  { id:'spagbol',    name:'Spaghetti bolognese',      ing:{ mince:250, tomPaste:250, onion:1, cannedTom:400, spaghetti:200 } },
+  { id:'butterchk',  name:'Butter chicken',           ing:{ bcSauce:375, chicken:350, potatoes:600, carrots:120, naan:2, rice:200 } },
+  { id:'greencurry', name:'Green curry',              ing:{ curry:220, chicken:300, capsicum:1, carrots:120, broccoli:170, rice:200 } },
+  { id:'padthai',    name:'Pad thai',                 ing:{ padThaiKit:1, carrots:120, capsicum:1, broccoli:170, eggs:1 } },
+  { id:'pieveg',     name:'Pie & veg',                ing:{ pies:1, potatoes:600, carrots:120, broccoli:170 } },
+  { id:'redcurry',   name:'Red curry',                ing:{ redPaste:210, chicken:300, capsicum:1, carrots:120, broccoli:170, rice:200 } },
+  { id:'satay',      name:'Satay noodle stir-fry',    ing:{ satayJar:375, chicken:300, capsicum:1, carrots:120, broccoli:170, hokkien:440 } },
+  { id:'kiev',       name:'Kiev + veg',               ing:{ kievs:2, potatoes:800, carrots:120, broccoli:170 } },
+  { id:'salmon',     name:'Salmon + veg',             ing:{ salmon:500, potatoes:800, carrots:120, broccoli:170 } },
+  { id:'steak',      name:'Steak + veg',              ing:{ steak:400, potatoes:800, carrots:120, broccoli:170 } },
+  { id:'schnitzel',  name:'Schnitzel + veg',          ing:{ schnitzel:400, potatoes:800, carrots:120, broccoli:170 } },
+  { id:'burritos',   name:'Burritos',                 ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
+  { id:'nachos',     name:'Nachos',                   ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100, cornChips:230, salsa:300 } },
+  { id:'spanakopita',name:'Spanakopita & slaw',       ing:{ spanakopitaP:1, slawKit:400 } },
+  { id:'gyoza',      name:'Prawn gyoza',              ing:{ gyoza:14 } },
+  { id:'korma',      name:'Korma',                    ing:{ kormaPaste:285, chicken:350, potatoes:600, carrots:120, naan:2, rice:200 } },
+  { id:'cashewchk',  name:'Chicken cashew',           ing:{ cashewJar:375, chicken:300, capsicum:1, carrots:120, broccoli:170, rice:200, cashews:100 } },
+  { id:'sweetsour',  name:'Sweet & sour chicken',     ing:{ ssSauce:375, chicken:300, capsicum:1, carrots:120, broccoli:170, rice:200 } },
+  { id:'tacobowls',  name:'Taco rice bowls',          ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
+  // Breakfasts (serves 2) — Muz's spec
+  { id:'weetbixMilk', name:'Weet-Bix & milk',           cat:'breakfast', ing:{ weetbix:45, milk:300 } },
+  { id:'eggsMush',    name:'Eggs & mushrooms',          cat:'breakfast', ing:{ eggs:4, mushrooms:100 } },
+  { id:'eggsAvo',     name:'Eggs on toast with avo',    cat:'breakfast', ing:{ eggs:2, bread:90, avocado:0.5 } },
+  { id:'porridge',    name:'Porridge',                  cat:'breakfast', ing:{ oats:45, milk:250, honey:7 } },
+  // Lunches (serves 2) — Muz's spec
+  { id:'wrapCCA',      name:'Chicken, cheese & avo wrap',      cat:'lunch', ing:{ chicken:200, tortillas:2, cheese:60, avocado:0.5 } },
+  { id:'couscousSalad',name:'Cous cous salad',                 cat:'lunch', ing:{ couscous:100, cherryTom:125, feta:50, avocado:0.5, chickpeas:200, corn:200, hmDressing:40 } },
+  { id:'pestoChicken', name:'Pesto chicken with penne (frozen)',        cat:'lunch', ing:{ pestoMeal:2 } },
+  { id:'smokyBeef',    name:'Smoky beef & sweet potato (frozen)',       cat:'lunch', ing:{ smokyMeal:2 } },
+  { id:'lemonPepper',  name:'Lemon pepper chicken (frozen)',            cat:'lunch', ing:{ lemonPepMeal:2 } },
+  { id:'beefRendang',  name:'Beef rendang (frozen)',                    cat:'lunch', ing:{ rendangMeal:2 } },
+];
+RECIPES.forEach(r => { if (!r.cat) r.cat = 'dinner'; });
+const CATS = [
+  { id:'breakfast', label:'Breakfast' },
+  { id:'lunch',     label:'Lunch' },
+  { id:'dinner',    label:'Dinner' },
+];
+let activeCat = 'dinner';
+
+const BASE_SERVES = 2;   // recipe quantities are written for 2 people (Muz's spec, 26 Jul 2026)
+let people = 2;          // scaled by people/BASE_SERVES
+let picked = new Set(['spagbol','butterchk','padthai','steak','nachos']);
+let times = {};   // meal id -> cook-ups per week (default 1)
+let pantryHave = new Set();   // ingredient keys ticked as "already in the pantry"
+let priceEdits = {};   // k -> {w?,c?,a?} ONLY prices the user explicitly changed (these outrank remote updates)
+let remotePricesDate = '';   // set when prices.json is fetched from the host
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+let plan = {};   // "day|cat" -> mealId (week planner assignments)
+
+// ---------------- OPTIMISER CORE ----------------
+function evaluate(mealIds, tOver) {
+  const req = {}; const usedBy = {};
+  const scale = people / BASE_SERVES;
+  const tmap = tOver || times;
+  let mealSlots = 0;
+  for (const id of mealIds) {
+    const r = RECIPES.find(x => x.id === id);
+    const t = tmap[id] || 1;
+    mealSlots += t;
+    for (const [k, q] of Object.entries(r.ing)) {
+      req[k] = (req[k] || 0) + q * scale * t;
+      (usedBy[k] = usedBy[k] || []).push(r.name + (t > 1 ? ` ×${t}` : ''));
+    }
+  }
+  const rows = [];
+  let totW = 0, totC = 0, totSplit = 0, totAldi = 0, wasteRisk = 0, aldiMissing = 0;
+  for (const [k, need] of Object.entries(req)) {
+    const g = ING[k];
+    const packs = Math.ceil(need / g.pack - 1e-9);
+    const bought = packs * g.pack;
+    const leftover = bought - need;
+    const best = Math.min(g.w, g.c, g.a == null ? Infinity : g.a);
+    const costW = packs * g.w, costC = packs * g.c, cost = packs * best;
+    const costA = g.a == null ? null : packs * g.a;
+    const leftoverVal = bought > 0 ? (leftover / bought) * cost : 0;
+    const risk = g.keeps ? 0 : leftoverVal;
+    const have = pantryHave.has(k) && g.keeps;   // only keepable staples can be "from the pantry"
+    if (!have) {
+      totW += costW; totC += costC; totSplit += cost; wasteRisk += risk;
+      // Aldi + top-up: buy at Aldi when stocked, otherwise at the cheaper major
+      totAldi += costA != null ? costA : packs * Math.min(g.w, g.c);
+      if (costA == null) aldiMissing++;
+    }
+    rows.push({ k, g, need, packs, bought, leftover, usedPct: bought ? need / bought : 1,
+      costW, costC, costA, cost, leftoverVal, risk, have, usedBy: usedBy[k] });
+  }
+  const nIng = rows.length;
+  const shared = rows.filter(r => r.usedBy.length >= 2).length;
+  return {
+    rows, totW, totC, totAldi, aldiMissing, totSplit, wasteRisk,
+    bestStore: totW <= totC ? 'Woolworths' : 'Coles',
+    bestStoreTotal: Math.min(totW, totC),
+    splitSaves: Math.min(totW, totC) - totSplit,
+    mealSlots,
+    perServe: mealSlots ? totSplit / (mealSlots * people) : 0,
+    sharedPct: nIng ? shared / nIng : 0,
+    objective: totSplit + wasteRisk,
+  };
+}
+
+function findSwaps(currentIds) {
+  const base = evaluate(currentIds);
+  const out = [];
+  for (const outId of currentIds) {
+    const outCat = RECIPES.find(x => x.id === outId).cat;
+    for (const r of RECIPES) {
+      if (currentIds.includes(r.id) || r.cat !== outCat) continue;
+      const alt = currentIds.map(x => x === outId ? r.id : x);
+      // replacement inherits the outgoing meal's per-week multiplier
+      const e = evaluate(alt, { ...times, [r.id]: times[outId] || 1 });
+      const gain = base.objective - e.objective;
+      if (gain >= 1.0) {
+        out.push({
+          out: RECIPES.find(x => x.id === outId).name, outId, inn: r.name, inId: r.id,
+          gain, dCost: base.totSplit - e.totSplit, dWaste: base.wasteRisk - e.wasteRisk,
+        });
+      }
+    }
+  }
+  out.sort((a, b) => b.gain - a.gain);
+  // keep best suggestion per outgoing meal, top 3 overall
+  const seen = new Set(); const top = [];
+  for (const s of out) {
+    if (seen.has(s.outId)) continue;
+    seen.add(s.outId); top.push(s);
+    if (top.length === 3) break;
+  }
+  return top;
+}
+
+// ---------------- RENDER ----------------
+const SHORT = { chicken:'chicken', mince:'mince', salmon:'salmon', steak:'steak', schnitzel:'schnitzel',
+  prawns:'prawns', kievs:'kievs', pies:'pies', gyoza:'gyoza', frozenVeg:'frozen veg', spinach:'spinach',
+  filo:'filo', eggs:'eggs', cheese:'cheese', feta:'feta', sourCream:'sour cream', yoghurt:'yoghurt',
+  rice:'rice', spaghetti:'spaghetti', riceNoodles:'rice noodles', hokkien:'hokkien', cannedTom:'tomatoes',
+  coconut:'coconut milk', curry:'green paste', redPaste:'red paste', kormaPaste:'korma paste',
+  bcSauce:'sauce', ssSauce:'s&s sauce', ptSauce:'pad thai sauce', peanutButter:'peanut butter',
+  soy:'soy', tortillas:'tortillas', beans:'beans', cornChips:'corn chips', salsa:'salsa',
+  tacoSeas:'taco seasoning', cashews:'cashews', broccoli:'broccoli', capsicum:'capsicum',
+  carrots:'carrots', onion:'onion', garlic:'garlic', potatoes:'potatoes', coriander:'coriander',
+  slawKit:'slaw', lemon:'lemon', banana:'banana', lettuce:'lettuce', bacon:'bacon', ham:'ham',
+  milk:'milk', butter:'butter', bread:'bread', rolls:'rolls', oats:'oats', tuna:'tuna',
+  penne:'penne', stock:'stock', weetbix:'weet-bix', mushrooms:'mushrooms', avocado:'avo',
+  cucumber:'cucumber', couscous:'cous cous', pestoMeal:'frozen meal', smokyMeal:'frozen meal',
+  lemonPepMeal:'frozen meal', rendangMeal:'frozen meal', tomPaste:'tomato paste', honey:'honey',
+  naan:'naan', cherryTom:'cherry toms', chickpeas:'chickpeas', corn:'corn', hmDressing:'dressing',
+  padThaiKit:'pad thai kit', satayJar:'satay jar', cashewJar:'cashew sauce', kidneyBeans:'kidney beans',
+  burritoKit:'burrito kit', guac:'guac', spanakopitaP:'spanakopita' };
+const EMOJI = { spagbol:'🍝', butterchk:'🍛', greencurry:'🍲', padthai:'🍤', pieveg:'🥧', redcurry:'🌶️',
+  satay:'🍜', kiev:'🍗', salmon:'🐟', steak:'🥩', schnitzel:'🍖', burritos:'🌯', nachos:'🧀',
+  spanakopita:'🥬', gyoza:'🥟', korma:'🍚', cashewchk:'🥜', sweetsour:'🍍', tacobowls:'🌮',
+  weetbixMilk:'🥛', eggsMush:'🍳', eggsAvo:'🥑', porridge:'🥣',
+  wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛' };
+const AISLE_ICON = { 'Meat & Seafood':'🥩', 'Fresh Produce':'🥬', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫' };
+const $ = id => document.getElementById(id);
+const fmt = v => '$' + v.toFixed(2);
+const qty = (v, u) => (u === 'g' || u === 'ml') ? (v >= 1000 ? (v/1000).toFixed(v % 1000 ? 1 : 0) + (u === 'g' ? 'kg' : 'L') : v + u) : v + ' ' + u;
+
+function renderMeals() {
+  $('tabs').innerHTML = CATS.map(c => {
+    const n = RECIPES.filter(r => r.cat === c.id && picked.has(r.id)).length;
+    return `<button class="tab ${activeCat === c.id ? 'on' : ''}" data-cat="${c.id}">${c.label}${n ? `<span class="n">${n}</span>` : ''}</button>`;
+  }).join('');
+  document.querySelectorAll('.tab').forEach(el => el.onclick = () => { activeCat = el.dataset.cat; renderMeals(); });
+  $('meals').innerHTML = RECIPES.filter(r => r.cat === activeCat).map(r => {
+    const names = Object.keys(r.ing).map(k => SHORT[k]);
+    const t = times[r.id] || 1;
+    const planned = planCount(r.id);
+    const mult = !picked.has(r.id) ? '' : planned > 0
+      ? `<div class="planchip" title="set by the week planner">📅 ×${planned} planned</div>`
+      : `<div class="mult" title="How many times this week?">
+        <button class="mbtn" data-id="${r.id}" data-d="-1" aria-label="fewer times">−</button>
+        <span class="mval">×${t}</span>
+        <button class="mbtn" data-id="${r.id}" data-d="1" aria-label="more times">+</button>
+      </div>`;
+    return `<div class="meal ${picked.has(r.id) ? 'on' : ''}" data-id="${r.id}">
+      <span class="tick">✓</span>
+      <div class="emo">${EMOJI[r.id] || '🍽️'}</div>
+      <div class="nm">${r.name}</div>
+      <div class="ings">${names.slice(0, 5).join(' · ')}${names.length > 5 ? ' +' + (names.length - 5) : ''}</div>
+      ${mult}
+    </div>`;
+  }).join('');
+  const counts = CATS.map(c => {
+    const n = RECIPES.filter(r => r.cat === c.id && picked.has(r.id)).length;
+    return n ? `${n} ${c.label.toLowerCase()}${n > 1 ? (c.id === 'lunch' ? 'es' : 's') : ''}` : null;
+  }).filter(Boolean);
+  const totT = [...picked].reduce((s, id) => s + (times[id] || 1), 0);
+  $('pickCount').textContent = `${counts.join(' · ') || 'nothing picked'} × ${people} serves${totT > picked.size ? ` · ${totT} cook-ups` : ''}`;
+  document.querySelectorAll('.meal').forEach(el => el.onclick = (ev) => {
+    if (ev.target.closest('.mult')) return;   // stepper clicks don't toggle the card
+    const id = el.dataset.id;
+    if (picked.has(id)) { picked.delete(id); delete times[id]; }
+    else picked.add(id);
+    renderAll();
+  });
+  document.querySelectorAll('.mbtn').forEach(b => b.onclick = (ev) => {
+    ev.stopPropagation();
+    const id = b.dataset.id;
+    times[id] = Math.max(1, Math.min(7, (times[id] || 1) + parseInt(b.dataset.d, 10)));
+    renderAll();
+  });
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function renderSticky(e) {
+  const wastePct = e.totSplit ? e.wasteRisk / e.totSplit : 0;
+  $('stickyinner').innerHTML = `
+    <span><span class="sl">Shop</span><span class="sv">${fmt(e.totSplit)}</span></span>
+    <span><span class="sl">Per serve</span><span class="sv">${fmt(e.perServe)}</span></span>
+    <span><span class="sl">Waste</span><span class="sv ${wastePct > 0.10 ? 'warnv' : 'okv'}">${fmt(e.wasteRisk)}</span></span>
+    <span><span class="sl">Serves</span><span class="sv">${e.mealSlots * people}</span></span>`;
+}
+
+function renderTiles(e) {
+  const wastePct = e.totSplit ? e.wasteRisk / e.totSplit : 0;
+  const wasteCls = wastePct > 0.10 ? 'warn' : 'good';
+  const wasteIcon = wastePct > 0.10 ? '⚠' : '✓';
+  const vsWorst = Math.max(e.totW, e.totC) - e.totSplit;
+  $('tiles').innerHTML = `
+    <div class="tile"><div class="lbl">Weekly shop</div><div class="val">${fmt(e.totSplit)}</div>
+      <div class="sub">${vsWorst > 0.5 ? `<span class="good">saves ${fmt(vsWorst)}</span> vs dearest store` : 'best price per item, 3 stores'}</div></div>
+    <div class="tile"><div class="lbl">Cost per serve</div><div class="val">${fmt(e.perServe)}</div>
+      <div class="sub">${e.mealSlots} meal${e.mealSlots === 1 ? '' : 's'} · ${e.mealSlots * people} serves</div></div>
+    <div class="tile"><div class="lbl">Waste risk</div><div class="val">${fmt(e.wasteRisk)}</div>
+      <div class="sub"><span class="${wasteCls}">${wasteIcon} ${(wastePct * 100).toFixed(0)}% of spend</span> in perishable leftovers</div>
+      <div class="meter"><div class="mfill ${wastePct > 0.10 ? 'bad' : 'ok'}" style="width:${Math.min(100, wastePct * 100).toFixed(0)}%"></div></div></div>
+    <div class="tile"><div class="lbl">Ingredient sharing</div><div class="val">${(e.sharedPct * 100).toFixed(0)}%</div>
+      <div class="sub">of ingredients used by 2+ meals</div>
+      <div class="meter"><div class="mfill" style="width:${(e.sharedPct * 100).toFixed(0)}%"></div></div></div>`;
+}
+
+function renderStores(e) {
+  const wBest = e.totW <= e.totC;
+  const aldiBest = e.totAldi < Math.min(e.totW, e.totC);
+  const rows = [
+    { name: 'Woolworths', val: e.totW, note: '', tag: wBest && !aldiBest ? 'cheapest single store' : '' },
+    { name: 'Coles', val: e.totC, note: '', tag: !wBest && !aldiBest ? 'cheapest single store' : '' },
+    { name: 'Aldi + top-up', val: e.totAldi,
+      note: e.aldiMissing ? `${e.aldiMissing} item${e.aldiMissing > 1 ? 's' : ''} from ${wBest ? 'Woolies' : 'Coles'}` : 'full list stocked',
+      tag: aldiBest ? 'cheapest simple shop' : '' },
+    { name: 'Split shop', val: e.totSplit, note: 'best per item', tag: '' },
+  ];
+  const max = Math.max(...rows.map(r => r.val), 0.01);
+  const minVal = Math.min(...rows.map(r => r.val));
+  $('stores').innerHTML = rows.map(r => `
+    <div class="srow ${r.val === minVal && r.val > 0 ? 'best' : ''}">
+      <div class="sname">${r.name}${r.tag ? `<span class="stag">${r.tag}</span>` : ''}</div>
+      <div class="strack"><div class="sbar" style="width:${(r.val / max * 100).toFixed(1)}%"></div></div>
+      <div class="sval">${fmt(r.val)}<div class="snote">${r.note}</div></div>
+    </div>`).join('');
+}
+
+function renderSwaps() {
+  const swaps = picked.size ? findSwaps([...picked]) : [];
+  $('swaps').innerHTML = swaps.length ? swaps.map((s, i) => `
+    <div class="swap">
+      <div>
+        <div><b>${EMOJI[s.outId] || ''} ${s.out} <span class="arrow">→</span> ${EMOJI[s.inId] || ''} ${s.inn}</b></div>
+        <div class="why">${s.dWaste > 0.5 ? `cuts perishable leftovers by ${fmt(s.dWaste)}` : ''}${s.dWaste > 0.5 && s.dCost > 0.5 ? ' and ' : ''}${s.dCost > 0.5 ? `trims the shop by ${fmt(s.dCost)}` : ''}${s.dWaste <= 0.5 && s.dCost <= 0.5 ? 'better overall cost + waste balance' : ''} · shares more ingredients with the rest of your week</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="save">−${fmt(s.gain)}/wk</span>
+        <button data-out="${s.outId}" data-in="${s.inId}">Apply</button>
+      </div>
+    </div>`).join('')
+    : `<div class="noswap">${picked.size ? '✓ No swap beats your current pick · cost and waste are already well optimised.' : 'Pick some meals to get suggestions.'}</div>`;
+  document.querySelectorAll('.swap button').forEach(b => b.onclick = () => {
+    const s = swaps.find(x => x.outId === b.dataset.out && x.inId === b.dataset.in);
+    picked.delete(b.dataset.out); picked.add(b.dataset.in);
+    times[b.dataset.in] = times[b.dataset.out] || 1;
+    delete times[b.dataset.out];
+    for (const [cell, id] of Object.entries(plan)) if (id === b.dataset.out) plan[cell] = b.dataset.in;
+    renderAll();
+    if (s) toast(`Swapped ${s.out} for ${s.inn} · saving ${fmt(s.gain)}/wk`);
+  });
+}
+
+function renderList(e) {
+  const aisles = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry'];
+  let html = `<thead><tr>
+    <th>Item</th><th>Need → Buy</th><th class="num">Woolies $</th><th class="num">Coles $</th><th class="num">Aldi $</th>
+    <th>Utilisation</th><th class="num">Cost (best)</th></tr></thead><tbody>`;
+  for (const aisle of aisles) {
+    const rows = e.rows.filter(r => r.g.aisle === aisle).sort((a, b) => b.cost - a.cost);
+    if (!rows.length) continue;
+    html += `<tr class="aisle"><td colspan="7">${AISLE_ICON[aisle] || ''} ${aisle}</td></tr>`;
+    for (const r of rows) {
+      const aP = r.g.a == null ? Infinity : r.g.a;
+      const minP = Math.min(r.g.w, r.g.c, aP);
+      const wCheap = r.g.w === minP && minP < Math.min(r.g.c, aP);
+      const cCheap = r.g.c === minP && minP < Math.min(r.g.w, aP);
+      const aCheap = aP === minP && minP < Math.min(r.g.w, r.g.c);
+      const usedPct = Math.round(r.usedPct * 100);
+      const wasteNote = r.leftover > 0.01
+        ? (r.g.keeps
+            ? `${qty(Math.round(r.leftover * 10) / 10, r.g.unit)} left · keeps`
+            : `<span class="w">⚠ ${qty(Math.round(r.leftover * 10) / 10, r.g.unit)} at risk (${fmt(r.risk)})</span>`)
+        : 'fully used';
+      html += `<tr class="${r.have ? 'inpantry' : ''}">
+        <td><span class="iname">${r.g.name}</span>${r.have ? '<span class="pantryb">🏠 pantry</span>' : ''}<br>
+            <span class="isub">${r.g.packLabel} · ${r.usedBy.length} meal${r.usedBy.length > 1 ? 's' : ''} · <span class="${r.g.src === 'live' ? 'src-live' : ''}">${r.g.src === 'live' ? 'live price' : 'indicative'}</span></span></td>
+        <td>${qty(Math.round(r.need * 10) / 10, r.g.unit)} → <b>${r.packs}×</b> ${r.g.packLabel}</td>
+        <td class="num"><input class="price ${wCheap ? 'cheaper' : ''}" type="number" step="0.05" min="0" value="${r.g.w.toFixed(2)}" data-k="${r.k}" data-s="w">${wCheap ? '<span class="storeb">W</span>' : ''}</td>
+        <td class="num"><input class="price ${cCheap ? 'cheaper' : ''}" type="number" step="0.05" min="0" value="${r.g.c.toFixed(2)}" data-k="${r.k}" data-s="c">${cCheap ? '<span class="storeb">C</span>' : ''}</td>
+        <td class="num"><input class="price ${aCheap ? 'cheaper' : ''}" type="number" step="0.05" min="0" value="${r.g.a == null ? '' : r.g.a.toFixed(2)}" placeholder="n/a" title="${r.g.a == null ? 'Not stocked at Aldi — type a price to add it' : 'Clear to mark as not stocked at Aldi'}" data-k="${r.k}" data-s="a">${aCheap ? '<span class="storeb">A</span>' : ''}</td>
+        <td class="util"><div class="bar" title="${usedPct}% of purchase used"><div class="fill" style="width:${usedPct}%"></div></div>
+            <div class="cap">${usedPct}% used · ${wasteNote}</div></td>
+        <td class="num">${r.have ? '<span style="color:var(--success-text);font-weight:650;font-size:12px">in pantry</span>' : fmt(r.cost)}</td>
+      </tr>`;
+    }
+  }
+  html += `</tbody>`;
+  $('list').innerHTML = picked.size ? html : '<tbody><tr><td style="color:var(--muted)">Pick some meals to build your list.</td></tr></tbody>';
+  document.querySelectorAll('input.price').forEach(inp => inp.onchange = () => {
+    const v = parseFloat(inp.value);
+    const k = inp.dataset.k, f = inp.dataset.s;
+    if (f === 'a' && inp.value.trim() === '') { ING[k].a = null; (priceEdits[k] = priceEdits[k] || {})[f] = null; renderAll(); }
+    else if (!isNaN(v) && v >= 0) { ING[k][f] = v; (priceEdits[k] = priceEdits[k] || {})[f] = v; renderAll(); }
+  });
+}
+
+// ---------------- PERSISTENCE (PWA) ----------------
+// Guarded: in sandboxed previews localStorage is unavailable; the app still runs, just without memory.
+const STORE_KEY = 'pantrypicks.v1';
+const OLD_STORE_KEY = 'supershopper.v1';   // migrate any state saved under the working title
+function storageOK() {
+  try { const t = '__ss_test__'; localStorage.setItem(t, t); localStorage.removeItem(t); return true; }
+  catch (err) { return false; }
+}
+const CAN_STORE = storageOK();
+
+function saveState() {
+  if (!CAN_STORE) return;
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], priceEdits,
+    }));
+  } catch (err) { /* storage full or blocked: carry on */ }
+}
+
+function loadState() {
+  if (!CAN_STORE) return;
+  try {
+    const raw = localStorage.getItem(STORE_KEY) || localStorage.getItem(OLD_STORE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s.people >= 1 && s.people <= 8) people = s.people;
+    if (Array.isArray(s.picked)) picked = new Set(s.picked.filter(id => RECIPES.some(r => r.id === id)));
+    if (s.times && typeof s.times === 'object') times = s.times;
+    if (s.plan && typeof s.plan === 'object') {
+      plan = {};
+      for (const [cell, id] of Object.entries(s.plan)) if (picked.has(id)) plan[cell] = id;
+    }
+    if (Array.isArray(s.pantryHave)) pantryHave = new Set(s.pantryHave.filter(k => ING[k]));
+    if (s.priceEdits && typeof s.priceEdits === 'object') {
+      priceEdits = s.priceEdits;
+      for (const [k, ed] of Object.entries(priceEdits)) {
+        if (!ING[k] || !ed) continue;
+        for (const f of ['w', 'c', 'a']) {
+          if (!(f in ed)) continue;
+          if (ed[f] === null && f === 'a') ING[k].a = null;
+          else if (typeof ed[f] === 'number' && ed[f] >= 0) ING[k][f] = ed[f];
+        }
+      }
+    }
+    // legacy s.prices (full snapshot from the first build) is intentionally ignored
+  } catch (err) { /* corrupt saved state: start fresh */ }
+}
+
+function resetState() {
+  if (!confirm('Clear your saved meals, plan, pantry ticks and price edits?')) return;
+  if (CAN_STORE) { try { localStorage.removeItem(STORE_KEY); } catch (err) {} }
+  location.reload();
+}
+
+const planCount = id => Object.values(plan).filter(x => x === id).length;
+
+function syncPlan() {
+  // drop assignments for meals no longer picked; planned meals drive their own multiplier
+  for (const [cell, id] of Object.entries(plan)) if (!picked.has(id)) delete plan[cell];
+  for (const id of picked) { const n = planCount(id); if (n > 0) times[id] = n; }
+}
+
+function renderPlan() {
+  const today = DAYS[(new Date().getDay() + 6) % 7];   // JS Sunday=0 -> our Mon-first index
+  let html = '<thead><tr><th></th>' + DAYS.map(d => `<th class="${d === today ? 'today' : ''}">${d}</th>`).join('') + '</tr></thead><tbody>';
+  for (const c of CATS) {
+    const opts = RECIPES.filter(r => r.cat === c.id && picked.has(r.id));
+    html += `<tr><td class="rowlbl">${c.label}</td>` + DAYS.map(d => {
+      const cell = `${d}|${c.id}`;
+      const cur = plan[cell] || '';
+      return `<td class="${d === today ? 'today' : ''}"><select class="cellsel ${cur ? 'filled' : ''}" data-cell="${cell}">
+        <option value="">·</option>
+        ${opts.map(r => `<option value="${r.id}" ${r.id === cur ? 'selected' : ''}>${EMOJI[r.id] || ''} ${r.name}</option>`).join('')}
+      </select></td>`;
+    }).join('') + '</tr>';
+  }
+  $('plangrid').innerHTML = html + '</tbody>';
+  document.querySelectorAll('.cellsel').forEach(s => s.onchange = () => {
+    if (s.value) plan[s.dataset.cell] = s.value; else delete plan[s.dataset.cell];
+    renderAll();
+  });
+}
+
+function renderPantry(e) {
+  // Multi-use packs: keepable items where this week's buy leaves leftover (or already ticked)
+  const cands = e.rows
+    .filter(r => r.g.keeps && (r.leftover > 0.01 || pantryHave.has(r.k)))
+    .sort((a, b) => b.cost - a.cost);
+  $('pantrySec').style.display = picked.size ? '' : 'none';
+  $('pantry').innerHTML = cands.length ? cands.map(r => `
+    <div class="pchip ${r.have ? 'on' : ''}" data-k="${r.k}">
+      <span class="pbox">✓</span>
+      <span>
+        <span class="pnm">${r.g.name}</span><br>
+        <span class="psub">need ${qty(Math.round(r.need * 10) / 10, r.g.unit)}${r.g.packLabel === 'each' ? '' : ' of ' + (r.g.packLabel === 'dozen' ? 'a dozen' : r.g.packLabel)}</span>
+      </span>
+      <span class="psave">${r.have ? `−${fmt(r.cost)}` : fmt(r.cost)}</span>
+    </div>`).join('')
+    : '<div class="nopantry">No multi-use packs on this list · everything gets used up this week.</div>';
+  document.querySelectorAll('.pchip').forEach(el => el.onclick = () => {
+    const k = el.dataset.k;
+    const r = cands.find(x => x.k === k);
+    if (pantryHave.has(k)) { pantryHave.delete(k); if (r) toast(`${r.g.name} back on the list`); }
+    else { pantryHave.add(k); if (r) toast(`${r.g.name} from the pantry · ${fmt(r.cost)} off the bill`); }
+    renderAll();
+  });
+}
+
+function renderAll() {
+  syncPlan();
+  const e = evaluate([...picked]);
+  renderMeals(); renderPlan(); renderTiles(e); renderSticky(e); renderStores(e); renderSwaps(); renderList(e); renderPantry(e);
+  saveState();
+  $('foot').innerHTML = `PantryPicks beta · base recipes serve ${BASE_SERVES}, quantities scaled to ${people} people · prices in AUD.
+    ${CAN_STORE ? 'Your picks, plan, pantry ticks and price edits are saved on this device. <a href="#" onclick="resetState();return false" style="color:var(--muted)">Reset saved data</a>.' : ''}
+    <b>Live prices</b>: refreshed 28 Jul 2026 from GroceryWatchList (Coles/Woolworths snapshot 22 Jul 2026), GrocerySpy staples check 26 Jul 2026, Grocerize, Pinch and OzBargain regular-price checks (Jul 2026). <b>Indicative</b>: typical shelf price, edit to match your store.
+    Waste risk counts leftover fractions of packs that don't keep (fresh produce, meat, opened cans/jars); pantry leftovers roll into next week.
+    Optimiser objective = best-price basket cost + $ value of perishable leftovers.`;
+}
+// ---------------- EXPORT ----------------
+const AISLES = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry'];
+function exportRows() {
+  const e = evaluate([...picked]);
+  const out = [];
+  for (const aisle of AISLES) {
+    const rows = e.rows.filter(r => r.g.aisle === aisle && !r.have).sort((a, b) => b.cost - a.cost);
+    for (const r of rows) out.push({ aisle, r });
+  }
+  return { e, out };
+}
+function cheapStore(g) {
+  const opts = [['W', g.w], ['C', g.c]];
+  if (g.a != null) opts.push(['A', g.a]);
+  const min = Math.min(...opts.map(o => o[1]));
+  return opts.filter(o => o[1] === min).map(o => o[0]).join('/');
+}
+function listAsText() {
+  const { e, out } = exportRows();
+  const mealNames = RECIPES.filter(r => picked.has(r.id)).map(r => r.name + ((times[r.id] || 1) > 1 ? ` ×${times[r.id]}` : '')).join(', ');
+  let txt = `SHOPPING LIST — ${e.mealSlots} meals for ${people} people\n`;
+  txt += `Meals: ${mealNames}\n`;
+  if (Object.keys(plan).length) {
+    txt += `\nTHE WEEK\n`;
+    for (const d of DAYS) {
+      const slots = CATS.map(c => plan[`${d}|${c.id}`]).filter(Boolean)
+        .map(id => RECIPES.find(r => r.id === id).name);
+      if (slots.length) txt += `${d}: ${slots.join(' · ')}\n`;
+    }
+  }
+  txt += `Total (best price): ${fmt(e.totSplit)} · Woolworths ${fmt(e.totW)} · Coles ${fmt(e.totC)} · Aldi+top-up ${fmt(e.totAldi)}\n`;
+  let aisle = '';
+  for (const { aisle: a, r } of out) {
+    if (a !== aisle) { aisle = a; txt += `\n${a.toUpperCase()}\n`; }
+    const store = cheapStore(r.g);
+    txt += `[ ] ${r.packs}x ${r.g.packLabel} ${r.g.name} — ${fmt(r.cost)} (${store}) · need ${qty(Math.round(r.need * 10) / 10, r.g.unit)}\n`;
+  }
+  const fromPantry = e.rows.filter(r => r.have).map(r => r.g.name);
+  if (fromPantry.length) txt += `\nFROM THE PANTRY (already have)\n${fromPantry.map(n => `[x] ${n}`).join('\n')}\n`;
+  return txt;
+}
+function listAsCsv() {
+  const { out } = exportRows();
+  const esc = s => '"' + String(s).replace(/"/g, '""') + '"';
+  const lines = [['Aisle','Item','Pack','Buy packs','Need','Unit','Woolworths $','Coles $','Aldi $','Best $','Cheapest store'].join(',')];
+  const NAMES = { W: 'Woolworths', C: 'Coles', A: 'Aldi' };
+  for (const { aisle, r } of out) {
+    lines.push([esc(aisle), esc(r.g.name), esc(r.g.packLabel), r.packs, Math.round(r.need * 10) / 10, r.g.unit,
+      r.costW.toFixed(2), r.costC.toFixed(2), r.costA == null ? 'n/a' : r.costA.toFixed(2), r.cost.toFixed(2),
+      esc(cheapStore(r.g).split('/').map(s => NAMES[s]).join(' / '))].join(','));
+  }
+  return lines.join('\n');
+}
+$('btnCopy').onclick = async () => {
+  const txt = listAsText();
+  try { await navigator.clipboard.writeText(txt); }
+  catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  }
+  const fb = $('copyFb'); fb.style.visibility = 'visible';
+  setTimeout(() => fb.style.visibility = 'hidden', 1800);
+};
+$('btnCsv').onclick = () => {
+  const blob = new Blob([listAsCsv()], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `shopping-list-${picked.size}-meals-${people}-people.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+// ---------------- STORE MODE (partner share view) ----------------
+function renderStoreMode() {
+  const { e, out } = exportRows();
+  $('ovsub').textContent = `${out.length} items · ${fmt(e.totSplit)} at best prices`;
+  let html = ''; let aisle = '';
+  for (const { aisle: a, r } of out) {
+    if (a !== aisle) { aisle = a; html += `<div class="ovaisle">${AISLE_ICON[a] || ''} ${a}</div>`; }
+    html += `<div class="sitem" data-k="${r.k}">
+      <span class="sbox">✓</span>
+      <span><span class="slbl">${r.packs}× ${r.g.packLabel} ${r.g.name}</span><br>
+        <span class="ssub">need ${qty(Math.round(r.need * 10) / 10, r.g.unit)} · cheapest at ${cheapStore(r.g).replace('W', 'Woolies').replace('C', 'Coles').replace('A', 'Aldi')}</span></span>
+      <span class="sprice">${fmt(r.cost)}</span>
+    </div>`;
+  }
+  $('ovlist').innerHTML = html || '<div class="nopantry" style="padding:14px">Pick some meals first.</div>';
+  const updateProgress = () => {
+    const items = [...document.querySelectorAll('.sitem')];
+    const doneEls = items.filter(el => el.classList.contains('done'));
+    if (!doneEls.length) { $('ovsub').textContent = `${out.length} items · ${fmt(e.totSplit)} at best prices`; return; }
+    const doneKeys = new Set(doneEls.map(el => el.dataset.k));
+    const left = out.filter(x => !doneKeys.has(x.r.k)).reduce((s, x) => s + x.r.cost, 0);
+    $('ovsub').textContent = `${doneEls.length} of ${items.length} ticked · ${fmt(left)} to go`;
+  };
+  document.querySelectorAll('.sitem').forEach(el => el.onclick = () => { el.classList.toggle('done'); updateProgress(); });
+}
+$('btnStore').onclick = () => { renderStoreMode(); $('storeMode').hidden = false; document.body.style.overflow = 'hidden'; };
+$('ovClose').onclick = () => { $('storeMode').hidden = true; document.body.style.overflow = ''; };
+$('storeMode').onclick = (ev) => { if (ev.target === $('storeMode')) $('ovClose').onclick(); };
+$('ovShare').onclick = async () => {
+  const txt = listAsText();
+  if (navigator.share) {
+    try { await navigator.share({ title: "This week's shop", text: txt }); return; } catch (err) { /* cancelled -> fall through */ }
+  }
+  try { await navigator.clipboard.writeText(txt); }
+  catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  }
+  const fb = $('ovFb'); fb.style.visibility = 'visible';
+  setTimeout(() => fb.style.visibility = 'hidden', 2200);
+};
+
+const pSel = $('people');
+pSel.innerHTML = [1,2,3,4,5,6,7,8].map(n => `<option value="${n}">${n}</option>`).join('');
+pSel.value = people;
+pSel.onchange = () => { people = parseInt(pSel.value, 10); renderAll(); };
+
+// Sticky totals bar: appears once the KPI tiles scroll out of view
+window.addEventListener('scroll', () => {
+  const tiles = $('tiles').getBoundingClientRect();
+  $('stickybar').classList.toggle('show', tiles.bottom < 80 && picked.size > 0);
+}, { passive: true });
+
+loadState();
+pSel.value = people;   // reflect restored household size in the selector
+renderAll();
+
+// Live prices: fetch prices.json from the host (updated by the price-refresh pipeline).
+// Applied only where the user has not made their own edit; offline or file:// just keeps current prices.
+function applyRemotePrices(data) {
+  for (const [k, p] of Object.entries(data)) {
+    const g = ING[k]; if (!g || !p) continue;
+    const ed = priceEdits[k] || {};
+    if (!('w' in ed) && typeof p.w === 'number') g.w = p.w;
+    if (!('c' in ed) && typeof p.c === 'number') g.c = p.c;
+    if (!('a' in ed)) g.a = (typeof p.a === 'number') ? p.a : null;
+    if (p.src) g.src = p.src;
+  }
+}
+fetch('prices.json', { cache: 'no-store' })
+  .then(r => r.ok ? r.json() : null)
+  .then(d => {
+    if (d && d.prices) { applyRemotePrices(d.prices); remotePricesDate = d.updated || ''; renderAll(); }
+  })
+  .catch(() => {});
+
+// Offline support: service worker registers only when hosted over http(s)
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
