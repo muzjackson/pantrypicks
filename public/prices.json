@@ -489,6 +489,5 @@
    "src": "ind"
   }
  },
- "pipeline": "github-actions",
- "pipelineTest": "loop-test-1"
+ "pipeline": "github-actions"
 }
