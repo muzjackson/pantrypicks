@@ -1,6 +1,6 @@
 {
- "updated": "2026-07-28",
- "source": "GroceryWatchList / GrocerySpy / Grocerize / catalogue checks",
+ "updated": "2026-07-30",
+ "source": "GroceryWatchList 29 Jul + BuyWisely (carrots); GrocerySpy / catalogue checks",
  "prices": {
   "chicken": {
    "w": 13.5,
@@ -237,7 +237,7 @@
    "src": "ind"
   },
   "carrots": {
-   "w": 2,
+   "w": 2.4,
    "c": 2.4,
    "a": 1.89,
    "src": "live"
