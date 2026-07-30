@@ -1,7 +1,7 @@
 # PantryPicks
 
 Weekly meal and shop optimiser for Woolworths, Coles and Aldi. Live at
-https://pantrypicks.murray-jackson33.workers.dev
+https://pantrypicks.app
 
 - `public/` — the deployed app (single-file PWA + prices.json + manifest/sw/icons)
 - Any push to `main` auto-deploys to Cloudflare via the GitHub Action

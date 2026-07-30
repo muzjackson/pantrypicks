@@ -1058,7 +1058,7 @@ function renderAll() {
   const e = evaluate([...picked]);
   renderMeals(); renderPlan(); renderTiles(e); renderSticky(e); renderStores(e); renderSwaps(); renderList(e); renderPantry(e);
   saveState();
-  $('foot').innerHTML = `PantryPicks beta · base recipes serve ${BASE_SERVES}, quantities scaled to ${people} people · prices in AUD.
+  $('foot').innerHTML = `PantryPicks beta · <a href="https://pantrypicks.app" style="color:var(--series-1);text-decoration:none;font-weight:600">pantrypicks.app</a> · base recipes serve ${BASE_SERVES}, quantities scaled to ${people} people · prices in AUD.
     ${CAN_STORE ? 'Your picks, plan, pantry ticks and price edits are saved on this device. <a href="#" onclick="resetState();return false" style="color:var(--muted)">Reset saved data</a>.' : ''}
     <b>Live prices</b>: refreshed 28 Jul 2026 from GroceryWatchList (Coles/Woolworths snapshot 22 Jul 2026), GrocerySpy staples check 26 Jul 2026, Grocerize, Pinch and OzBargain regular-price checks (Jul 2026). <b>Indicative</b>: typical shelf price, edit to match your store.
     Waste risk counts leftover fractions of packs that don't keep (fresh produce, meat, opened cans/jars); pantry leftovers roll into next week.
@@ -1103,6 +1103,7 @@ function listAsText() {
   }
   const fromPantry = e.rows.filter(r => r.have).map(r => r.g.name);
   if (fromPantry.length) txt += `\nFROM THE PANTRY (already have)\n${fromPantry.map(n => `[x] ${n}`).join('\n')}\n`;
+  txt += `\nMade with PantryPicks · https://pantrypicks.app\n`;
   return txt;
 }
 function listAsCsv() {
