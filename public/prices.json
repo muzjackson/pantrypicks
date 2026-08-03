@@ -1,6 +1,7 @@
 {
- "updated": "2026-07-30",
- "source": "GroceryWatchList 29 Jul + BuyWisely (carrots); GrocerySpy / catalogue checks",
+ "updated": "2026-07-28",
+ "source": "GroceryWatchList / GrocerySpy / Grocerize / catalogue checks",
+ "pipeline": "github-actions",
  "prices": {
   "chicken": {
    "w": 13.5,
@@ -237,7 +238,7 @@
    "src": "ind"
   },
   "carrots": {
-   "w": 2.4,
+   "w": 2,
    "c": 2.4,
    "a": 1.89,
    "src": "live"
@@ -487,7 +488,24 @@
    "c": 9.5,
    "a": 8.37,
    "src": "ind"
+  },
+  "massamanPaste": {
+   "w": 4.2,
+   "c": 4.4,
+   "a": 3.91,
+   "src": "ind"
+  },
+  "coconutCream": {
+   "w": 2.2,
+   "c": 2.3,
+   "a": 2.05,
+   "src": "ind"
+  },
+  "quesadillaPack": {
+   "w": 6.5,
+   "c": 6.8,
+   "a": 6.05,
+   "src": "ind"
   }
- },
- "pipeline": "github-actions"
+ }
 }

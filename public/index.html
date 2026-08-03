@@ -513,8 +513,8 @@
 
 <script>
 // ---------------- DATA ----------------
-// Prices in AUD. src:'live' = refreshed 30 Jul 2026 from GroceryWatchList (29 Jul snapshot),
-// BuyWisely price history, GrocerySpy staples check (29 Jul) and catalogue checks (Jul).
+// Prices in AUD. src:'live' = refreshed 28 Jul 2026 from GroceryWatchList (22 Jul snapshot),
+// GrocerySpy staples check (26 Jul), Grocerize, Pinch and OzBargain regular-price checks (Jul).
 // src:'ind' = indicative typical shelf price.
 // keeps:false means a leftover part-pack is likely wasted (fresh/opened).
 const ING = {
@@ -557,7 +557,7 @@ const ING = {
   cashews:  { name:'Cashews',                aisle:'Pantry',         unit:'g',     pack:150,  packLabel:'150g bag',      w:3.50,  c:3.70,  keeps:true,  src:'ind'  },
   broccoli: { name:'Broccoli',               aisle:'Fresh Produce',  unit:'g',     pack:340,  packLabel:'~340g head',    w:1.90,  c:2.10,  keeps:false, src:'ind'  },
   capsicum: { name:'Capsicum',               aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:2.20,  c:2.50,  keeps:false, src:'ind'  },
-  carrots:  { name:'Carrots',                aisle:'Fresh Produce',  unit:'g',     pack:1000, packLabel:'1kg bag',       w:2.40,  c:2.40,  keeps:false, src:'live' },
+  carrots:  { name:'Carrots',                aisle:'Fresh Produce',  unit:'g',     pack:1000, packLabel:'1kg bag',       w:2.00,  c:2.40,  keeps:false, src:'live' },
   onion:    { name:'Brown onion',            aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:0.63,  c:0.84,  keeps:true,  src:'live' },
   garlic:   { name:'Garlic',                 aisle:'Fresh Produce',  unit:'cloves',pack:10,   packLabel:'bulb (~10)',    w:1.50,  c:1.60,  keeps:true,  src:'ind'  },
   potatoes: { name:'Potatoes',               aisle:'Fresh Produce',  unit:'g',     pack:2000, packLabel:'2kg bag',       w:5.50,  c:5.90,  keeps:true,  src:'ind'  },
@@ -599,6 +599,9 @@ const ING = {
   burritoKit:{ name:'Burrito kit (seasoning + salsa)', aisle:'Pantry', unit:'each', pack:1,   packLabel:'kit box',       w:7.00,  c:7.50,  keeps:true,  src:'ind'  },
   guac:     { name:'Guacamole dip',          aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'200g tub',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
   spanakopitaP:{ name:'Spanakopita (family size)', aisle:'Freezer',  unit:'each',  pack:1,    packLabel:'whole',         w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
+  massamanPaste:{ name:'Massaman curry paste',   aisle:'Pantry',         unit:'g',     pack:210,  packLabel:'210g jar',      w:4.20,  c:4.40,  keeps:true,  src:'ind'  },
+  coconutCream:{ name:'Coconut cream',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:2.20,  c:2.30,  keeps:false, src:'ind'  },
+  quesadillaPack:{ name:'Quesadilla packet',     aisle:'Freezer',        unit:'each',  pack:1,    packLabel:'packet',        w:6.50,  c:6.80,  keeps:true,  src:'ind'  },
 };
 
 // Aldi pricing: a = price, null = not stocked (limited range). Hand-set anchors below;
@@ -633,6 +636,8 @@ const RECIPES = [
   { id:'cashewchk',  name:'Chicken cashew',           ing:{ cashewJar:375, chicken:300, capsicum:1, carrots:120, broccoli:170, rice:200, cashews:100 } },
   { id:'sweetsour',  name:'Sweet & sour chicken',     ing:{ ssSauce:375, chicken:300, capsicum:1, carrots:120, broccoli:170, rice:200 } },
   { id:'tacobowls',  name:'Taco rice bowls',          ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
+  { id:'massaman',   name:'Massaman curry',           ing:{ massamanPaste:210, chicken:300, onion:1, potatoes:600, coconutCream:400, rice:200 } },
+  { id:'quesadillas',name:'Quesadillas & slaw',       ing:{ quesadillaPack:2, slawKit:400 } },
   // Breakfasts (serves 2) — Muz's spec
   { id:'weetbixMilk', name:'Weet-Bix & milk',           cat:'breakfast', ing:{ weetbix:45, milk:300 } },
   { id:'eggsMush',    name:'Eggs & mushrooms',          cat:'breakfast', ing:{ eggs:4, mushrooms:100 } },
@@ -762,12 +767,14 @@ const SHORT = { chicken:'chicken', mince:'mince', salmon:'salmon', steak:'steak'
   lemonPepMeal:'frozen meal', rendangMeal:'frozen meal', tomPaste:'tomato paste', honey:'honey',
   naan:'naan', cherryTom:'cherry toms', chickpeas:'chickpeas', corn:'corn', hmDressing:'dressing',
   padThaiKit:'pad thai kit', satayJar:'satay jar', cashewJar:'cashew sauce', kidneyBeans:'kidney beans',
-  burritoKit:'burrito kit', guac:'guac', spanakopitaP:'spanakopita' };
+  burritoKit:'burrito kit', guac:'guac', spanakopitaP:'spanakopita',
+  massamanPaste:'massaman paste', coconutCream:'coconut cream', quesadillaPack:'quesadillas' };
 const EMOJI = { spagbol:'🍝', butterchk:'🍛', greencurry:'🍲', padthai:'🍤', pieveg:'🥧', redcurry:'🌶️',
   satay:'🍜', kiev:'🍗', salmon:'🐟', steak:'🥩', schnitzel:'🍖', burritos:'🌯', nachos:'🧀',
   spanakopita:'🥬', gyoza:'🥟', korma:'🍚', cashewchk:'🥜', sweetsour:'🍍', tacobowls:'🌮',
   weetbixMilk:'🥛', eggsMush:'🍳', eggsAvo:'🥑', porridge:'🥣',
-  wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛' };
+  wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛',
+  massaman:'🥘', quesadillas:'🫓' };
 const AISLE_ICON = { 'Meat & Seafood':'🥩', 'Fresh Produce':'🥬', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫' };
 const $ = id => document.getElementById(id);
 const fmt = v => '$' + v.toFixed(2);
@@ -1060,7 +1067,7 @@ function renderAll() {
   saveState();
   $('foot').innerHTML = `PantryPicks beta · <a href="https://pantrypicks.app" style="color:var(--series-1);text-decoration:none;font-weight:600">pantrypicks.app</a> · base recipes serve ${BASE_SERVES}, quantities scaled to ${people} people · prices in AUD.
     ${CAN_STORE ? 'Your picks, plan, pantry ticks and price edits are saved on this device. <a href="#" onclick="resetState();return false" style="color:var(--muted)">Reset saved data</a>.' : ''}
-    <b>Live prices</b>: refreshed 30 Jul 2026 from GroceryWatchList (snapshot 29 Jul 2026), BuyWisely price history, GrocerySpy staples check 29 Jul 2026 and catalogue checks (Jul 2026). <b>Indicative</b>: typical shelf price, edit to match your store.
+    <b>Live prices</b>: refreshed 28 Jul 2026 from GroceryWatchList (Coles/Woolworths snapshot 22 Jul 2026), GrocerySpy staples check 26 Jul 2026, Grocerize, Pinch and OzBargain regular-price checks (Jul 2026). <b>Indicative</b>: typical shelf price, edit to match your store.
     Waste risk counts leftover fractions of packs that don't keep (fresh produce, meat, opened cans/jars); pantry leftovers roll into next week.
     Optimiser objective = best-price basket cost + $ value of perishable leftovers.`;
 }
