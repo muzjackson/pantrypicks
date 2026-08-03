@@ -600,7 +600,7 @@ const ING = {
   guac:     { name:'Guacamole dip',          aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'200g tub',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
   spanakopitaP:{ name:'Spanakopita (family size)', aisle:'Freezer',  unit:'each',  pack:1,    packLabel:'whole',         w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
   massamanPaste:{ name:'Massaman curry paste',   aisle:'Pantry',         unit:'g',     pack:210,  packLabel:'210g jar',      w:4.20,  c:4.40,  keeps:true,  src:'ind'  },
-  meatballs:{ name:'Beef meatballs',             aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack (12)',w:7.00,  c:7.50,  keeps:false, src:'ind'  },
+  meatballs:{ name:'Beef meatballs',             aisle:'Meat & Seafood', unit:'g',     pack:420,  packLabel:'420g pack',     w:7.00,  c:7.50,  keeps:false, src:'ind'  },
   basilSauce:{ name:'Basilico pasta sauce',      aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g jar',      w:3.50,  c:3.70,  keeps:false, src:'ind'  },
   coconutCream:{ name:'Coconut cream',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:2.20,  c:2.30,  keeps:false, src:'ind'  },
   quesadillaPack:{ name:'Quesadilla packet',     aisle:'Freezer',        unit:'each',  pack:1,    packLabel:'packet',        w:6.50,  c:6.80,  keeps:true,  src:'ind'  },
@@ -609,12 +609,19 @@ const ING = {
 // Aldi pricing: a = price, null = not stocked (limited range). Hand-set anchors below;
 // everything else defaults to ~7% under the cheaper major (indicative, editable in the list).
 const ALDI_NA = ['curry', 'padThaiKit', 'gyoza', 'pestoMeal', 'smokyMeal', 'lemonPepMeal', 'rendangMeal'];
-const ALDI_ANCHOR = { mince:7.99, eggs:5.00, spaghetti:0.89, rice:2.29, tomatoes:1.99, cannedTom:0.95, coconutMilk:2.79,
-  carrots:1.89, onions:0.59, butter:4.19, banana:0.81, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49 };
+// Receipt-verified (Aldi Whitfords 03.08.26) + tracker anchors. eggs = per-dozen equivalent of the 18pk @ $7.69;
+// cheese = per-500g equivalent of the 1kg block @ $8.99.
+const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTom:0.95, coconut:2.79,
+  carrots:1.89, onion:0.50, butter:4.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
+  couscous:1.99, cornChips:2.39, burritoKit:5.49, kidneyBeans:0.89, coconutCream:1.69, salsa:1.79,
+  sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79 };
+const RECEIPT_LIVE = ['mince','eggs','cannedTom','couscous','cornChips','burritoKit','kidneyBeans','coconutCream',
+  'salsa','sourCream','guac','meatballs','slawKit','cheese','cherryTom','avocado','banana','onion'];
 for (const [k, g] of Object.entries(ING)) {
   if (ALDI_NA.includes(k)) g.a = null;
   else if (ALDI_ANCHOR[k] != null) g.a = ALDI_ANCHOR[k];
   else g.a = Math.round(Math.min(g.w, g.c) * 0.93 * 100) / 100;
+  if (RECEIPT_LIVE.includes(k)) g.src = 'live';
 }
 
 const RECIPES = [
@@ -640,7 +647,7 @@ const RECIPES = [
   { id:'tacobowls',  name:'Taco rice bowls',          ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
   { id:'massaman',   name:'Massaman curry',           ing:{ massamanPaste:210, chicken:300, onion:1, potatoes:600, coconutCream:400, rice:200 } },
   { id:'quesadillas',name:'Quesadillas & slaw',       ing:{ quesadillaPack:2, slawKit:400 } },
-  { id:'spagMeatballs', name:'Spaghetti & meatballs',  ing:{ meatballs:500, spaghetti:200, basilSauce:500 } },
+  { id:'spagMeatballs', name:'Spaghetti & meatballs',  ing:{ meatballs:420, spaghetti:200, basilSauce:500 } },
   // Breakfasts (serves 2) — Muz's spec
   { id:'weetbixMilk', name:'Weet-Bix & milk',           cat:'breakfast', ing:{ weetbix:45, milk:300 } },
   { id:'eggsMush',    name:'Eggs & mushrooms',          cat:'breakfast', ing:{ eggs:4, mushrooms:100 } },

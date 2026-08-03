@@ -1,6 +1,6 @@
 {
- "updated": "2026-07-28",
- "source": "GroceryWatchList / GrocerySpy / Grocerize / catalogue checks",
+ "updated": "2026-08-03",
+ "source": "Aldi Whitfords receipt 03 Aug 2026 + GroceryWatchList/GrocerySpy anchors 28 Jul",
  "pipeline": "github-actions",
  "prices": {
   "chicken": {
@@ -12,7 +12,7 @@
   "mince": {
    "w": 9,
    "c": 9,
-   "a": 7.99,
+   "a": 9.99,
    "src": "live"
   },
   "salmon": {
@@ -78,14 +78,14 @@
   "eggs": {
    "w": 6.2,
    "c": 6.2,
-   "a": 5,
+   "a": 5.13,
    "src": "live"
   },
   "cheese": {
    "w": 8.5,
    "c": 8.9,
-   "a": 7.91,
-   "src": "ind"
+   "a": 4.5,
+   "src": "live"
   },
   "feta": {
    "w": 4,
@@ -96,8 +96,8 @@
   "sourCream": {
    "w": 2.5,
    "c": 2.5,
-   "a": 2.33,
-   "src": "ind"
+   "a": 3.09,
+   "src": "live"
   },
   "yoghurt": {
    "w": 7,
@@ -138,7 +138,7 @@
   "coconut": {
    "w": 3.2,
    "c": 3.2,
-   "a": 2.98,
+   "a": 2.79,
    "src": "live"
   },
   "curry": {
@@ -204,14 +204,14 @@
   "cornChips": {
    "w": 3.8,
    "c": 3.8,
-   "a": 3.53,
-   "src": "ind"
+   "a": 2.39,
+   "src": "live"
   },
   "salsa": {
    "w": 3.2,
    "c": 3.4,
-   "a": 2.98,
-   "src": "ind"
+   "a": 1.79,
+   "src": "live"
   },
   "tacoSeas": {
    "w": 1.4,
@@ -246,7 +246,7 @@
   "onion": {
    "w": 0.63,
    "c": 0.84,
-   "a": 0.59,
+   "a": 0.5,
    "src": "live"
   },
   "garlic": {
@@ -270,8 +270,8 @@
   "slawKit": {
    "w": 4,
    "c": 4.5,
-   "a": 3.72,
-   "src": "ind"
+   "a": 3.49,
+   "src": "live"
   },
   "lemon": {
    "w": 1,
@@ -282,7 +282,7 @@
   "banana": {
    "w": 0.91,
    "c": 0.83,
-   "a": 0.81,
+   "a": 0.67,
    "src": "live"
   },
   "mushrooms": {
@@ -294,8 +294,8 @@
   "avocado": {
    "w": 1.9,
    "c": 1.8,
-   "a": 1.67,
-   "src": "ind"
+   "a": 1.79,
+   "src": "live"
   },
   "weetbix": {
    "w": 5,
@@ -312,8 +312,8 @@
   "couscous": {
    "w": 2.6,
    "c": 2.8,
-   "a": 2.42,
-   "src": "ind"
+   "a": 1.99,
+   "src": "live"
   },
   "pestoMeal": {
    "w": 6.5,
@@ -426,8 +426,8 @@
   "cherryTom": {
    "w": 3.5,
    "c": 3.9,
-   "a": 3.26,
-   "src": "ind"
+   "a": 2.99,
+   "src": "live"
   },
   "chickpeas": {
    "w": 1.3,
@@ -468,20 +468,20 @@
   "kidneyBeans": {
    "w": 1.4,
    "c": 1.4,
-   "a": 1.3,
-   "src": "ind"
+   "a": 0.89,
+   "src": "live"
   },
   "burritoKit": {
    "w": 7,
    "c": 7.5,
-   "a": 6.51,
-   "src": "ind"
+   "a": 5.49,
+   "src": "live"
   },
   "guac": {
    "w": 4,
    "c": 4.2,
-   "a": 3.72,
-   "src": "ind"
+   "a": 2.69,
+   "src": "live"
   },
   "spanakopitaP": {
    "w": 9,
@@ -498,8 +498,8 @@
   "meatballs": {
    "w": 7,
    "c": 7.5,
-   "a": 6.51,
-   "src": "ind"
+   "a": 7.99,
+   "src": "live"
   },
   "basilSauce": {
    "w": 3.5,
@@ -510,8 +510,8 @@
   "coconutCream": {
    "w": 2.2,
    "c": 2.3,
-   "a": 2.05,
-   "src": "ind"
+   "a": 1.69,
+   "src": "live"
   },
   "quesadillaPack": {
    "w": 6.5,
