@@ -9,6 +9,12 @@
    "a": 12.56,
    "src": "ind"
   },
+  "chickenSlices": {
+   "w": 5,
+   "c": 5.2,
+   "a": 4.49,
+   "src": "live"
+  },
   "mince": {
    "w": 9,
    "c": 9,
@@ -541,19 +547,19 @@
    "w": 9,
    "c": 9.5,
    "a": 7.49,
-   "src": "ind"
+   "src": "live"
   },
   "shampoo": {
    "w": 4.5,
    "c": 4.5,
    "a": 3.99,
-   "src": "ind"
+   "src": "live"
   },
   "bodyWash": {
    "w": 4,
    "c": 4.2,
    "a": 3.49,
-   "src": "ind"
+   "src": "live"
   },
   "coconutCream": {
    "w": 2.2,

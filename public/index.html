@@ -524,6 +524,7 @@
 // keeps:false means a leftover part-pack is likely wasted (fresh/opened).
 const ING = {
   chicken:  { name:'Chicken breast fillets', aisle:'Meat & Seafood', unit:'g',     pack:1000, packLabel:'1kg pack',      w:13.50, c:14.50, keeps:false, src:'ind'  },
+  chickenSlices: { name:'Chicken breast slices (deli)', aisle:'Meat & Seafood', unit:'g', pack:200, packLabel:'200g pack', w:5.00, c:5.20, keeps:false, src:'ind' },
   mince:    { name:'Beef mince',             aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack',     w:9.00,  c:9.00,  keeps:false, src:'live' },
   salmon:   { name:'Salmon fillets',         aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack',     w:19.00, c:18.50, keeps:false, src:'ind'  },
   steak:    { name:'Porterhouse steak',      aisle:'Meat & Seafood', unit:'g',     pack:800,  packLabel:'4×200g pack',   w:26.00, c:27.00, keeps:false, src:'ind'  },
@@ -628,10 +629,10 @@ const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTo
   carrots:1.89, onion:0.50, butter:4.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
   couscous:1.99, cornChips:2.39, burritoKit:5.49, kidneyBeans:0.89, coconutCream:1.69, salsa:1.79,
   sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79,
-  muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:4.99, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49 };
+  muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:4.99, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49, chickenSlices:4.49 };
 const RECEIPT_LIVE = ['mince','eggs','cannedTom','couscous','cornChips','burritoKit','kidneyBeans','coconutCream',
   'salsa','sourCream','guac','meatballs','slawKit','cheese','cherryTom','avocado','banana','onion',
-  'muesliBars','partyMix','chipsStacked','mandarins','tissues'];
+  'muesliBars','partyMix','chipsStacked','mandarins','tissues','toiletPaper','shampoo','bodyWash','chickenSlices'];
 for (const [k, g] of Object.entries(ING)) {
   if (ALDI_NA.includes(k)) g.a = null;
   else if (ALDI_ANCHOR[k] != null) g.a = ALDI_ANCHOR[k];
@@ -669,7 +670,7 @@ const RECIPES = [
   { id:'eggsAvo',     name:'Eggs on toast with avo',    cat:'breakfast', ing:{ eggs:2, bread:90, avocado:0.5 } },
   { id:'porridge',    name:'Porridge',                  cat:'breakfast', ing:{ oats:45, milk:250, honey:7 } },
   // Lunches (serves 2) — Muz's spec
-  { id:'wrapCCA',      name:'Chicken, cheese & avo wrap',      cat:'lunch', ing:{ chicken:200, tortillas:2, cheese:60, avocado:0.5 } },
+  { id:'wrapCCA',      name:'Chicken, cheese & avo wrap',      cat:'lunch', ing:{ chickenSlices:200, tortillas:2, cheese:60, avocado:0.5 } },
   { id:'couscousSalad',name:'Cous cous salad',                 cat:'lunch', ing:{ couscous:100, cherryTom:125, feta:50, avocado:0.5, chickpeas:200, corn:200, hmDressing:40 } },
   { id:'pestoChicken', name:'Pesto chicken with penne (frozen)',        cat:'lunch', ing:{ pestoMeal:2 } },
   { id:'smokyBeef',    name:'Smoky beef & sweet potato (frozen)',       cat:'lunch', ing:{ smokyMeal:2 } },
@@ -788,7 +789,7 @@ function findSwaps(currentIds) {
 }
 
 // ---------------- RENDER ----------------
-const SHORT = { chicken:'chicken', mince:'mince', salmon:'salmon', steak:'steak', schnitzel:'schnitzel',
+const SHORT = { chicken:'chicken', chickenSlices:'chicken slices', mince:'mince', salmon:'salmon', steak:'steak', schnitzel:'schnitzel',
   prawns:'prawns', kievs:'kievs', pies:'pies', gyoza:'gyoza', frozenVeg:'frozen veg', spinach:'spinach',
   filo:'filo', eggs:'eggs', cheese:'cheese', feta:'feta', sourCream:'sour cream', yoghurt:'yoghurt',
   rice:'rice', spaghetti:'spaghetti', riceNoodles:'rice noodles', hokkien:'hokkien', cannedTom:'tomatoes',
