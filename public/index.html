@@ -445,7 +445,7 @@
   </header>
 
   <section>
-    <h2><span class="step">1</span> Pick your meals
+    <h2><span class="step">1</span> Pick your meals & items
       <label style="font-weight:400;font-size:13px;color:var(--text-secondary)">for
         <select id="people" class="pplsel"></select>
         people</label>
@@ -678,7 +678,7 @@ const CATS = [
   { id:'lunch',     label:'Lunch' },
   { id:'dinner',    label:'Dinner' },
 ];
-const TABS = [...CATS, { id:'snacks', label:'Snacks' }];   // planner rows use CATS; the snacks tab holds weekly extras, not meals
+const TABS = [...CATS, { id:'snacks', label:'Snacks', excat:'Snacks' }, { id:'household', label:'Household', excat:'Household' }];   // planner rows use CATS; extras tabs hold weekly items, not meals
 let activeCat = 'dinner';
 
 const BASE_SERVES = 2;   // recipe quantities are written for 2 people (Muz's spec, 26 Jul 2026)
@@ -818,13 +818,15 @@ const fmt = v => '$' + v.toFixed(2);
 const qty = (v, u) => (u === 'g' || u === 'ml') ? (v >= 1000 ? (v/1000).toFixed(v % 1000 ? 1 : 0) + (u === 'g' ? 'kg' : 'L') : v + u) : v + ' ' + u;
 
 function renderMeals() {
+  const exCount = cat => EXTRAS_DEF.filter(d => d.cat === cat && extras[d.k]).length;
   $('tabs').innerHTML = TABS.map(c => {
-    const n = c.id === 'snacks' ? Object.keys(extras).length : RECIPES.filter(r => r.cat === c.id && picked.has(r.id)).length;
+    const n = c.excat ? exCount(c.excat) : RECIPES.filter(r => r.cat === c.id && picked.has(r.id)).length;
     return `<button class="tab ${activeCat === c.id ? 'on' : ''}" data-cat="${c.id}">${c.label}${n ? `<span class="n">${n}</span>` : ''}</button>`;
   }).join('');
   document.querySelectorAll('.tab').forEach(el => el.onclick = () => { activeCat = el.dataset.cat; renderMeals(); });
-  if (activeCat === 'snacks') {
-    $('meals').innerHTML = EXTRAS_DEF.map(d => {
+  const exTab = TABS.find(c => c.id === activeCat && c.excat);
+  if (exTab) {
+    $('meals').innerHTML = EXTRAS_DEF.filter(d => d.cat === exTab.excat).map(d => {
       const g = ING[d.k]; if (!g) return '';
       const on = !!extras[d.k];
       const q = d.qty || 1;
@@ -833,11 +835,11 @@ function renderMeals() {
         <span class="tick">✓</span>
         <div class="emo">${EXTRA_EMOJI[d.k] || (d.cat === 'Snacks' ? '🍿' : '🧻')}</div>
         <div class="nm">${g.name}${q > 1 ? ` ×${q}` : ''}</div>
-        <div class="ings">${d.cat} · ${g.packLabel} · ${fmt(best)}</div>
+        <div class="ings">${g.packLabel} · ${fmt(best)}</div>
       </div>`;
     }).join('');
-    const nx = Object.keys(extras).length;
-    $('pickCount').textContent = nx ? `${nx} extra${nx > 1 ? 's' : ''} added to this week's shop` : 'tap to add weekly extras to the shop';
+    const nx = exCount(exTab.excat);
+    $('pickCount').textContent = nx ? `${nx} ${exTab.label.toLowerCase()} item${nx > 1 ? 's' : ''} on this week's shop` : `tap to add ${exTab.label.toLowerCase()} items to the shop`;
     document.querySelectorAll('.meal').forEach(el => el.onclick = () => {
       const k = el.dataset.k, q = parseInt(el.dataset.q, 10);
       if (extras[k]) { delete extras[k]; toast(`${ING[k].name} removed from the shop`); }
