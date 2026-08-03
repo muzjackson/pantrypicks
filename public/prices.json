@@ -1,7 +1,7 @@
 {
  "updated": "2026-08-03",
- "source": "Aldi Whitfords receipt 03 Aug 2026 + GroceryWatchList/GrocerySpy anchors 28 Jul",
- "pipeline": "github-actions",
+ "source": "Aldi Whitfords receipt 03.08.26 + AU anchor research",
+ "pipeline": "claude-scheduled-task",
  "prices": {
   "chicken": {
    "w": 13.5,
@@ -505,6 +505,54 @@
    "w": 3.5,
    "c": 3.7,
    "a": 3.26,
+   "src": "ind"
+  },
+  "muesliBars": {
+   "w": 4.5,
+   "c": 4.5,
+   "a": 3.99,
+   "src": "live"
+  },
+  "partyMix": {
+   "w": 4,
+   "c": 4.2,
+   "a": 3.59,
+   "src": "live"
+  },
+  "chipsStacked": {
+   "w": 2.5,
+   "c": 2.6,
+   "a": 1.99,
+   "src": "live"
+  },
+  "mandarins": {
+   "w": 5.9,
+   "c": 5.9,
+   "a": 4.99,
+   "src": "live"
+  },
+  "tissues": {
+   "w": 2.5,
+   "c": 2.5,
+   "a": 1.89,
+   "src": "live"
+  },
+  "toiletPaper": {
+   "w": 9,
+   "c": 9.5,
+   "a": 7.49,
+   "src": "ind"
+  },
+  "shampoo": {
+   "w": 4.5,
+   "c": 4.5,
+   "a": 3.99,
+   "src": "ind"
+  },
+  "bodyWash": {
+   "w": 4,
+   "c": 4.2,
+   "a": 3.49,
    "src": "ind"
   },
   "coconutCream": {

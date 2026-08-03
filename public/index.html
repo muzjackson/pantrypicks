@@ -480,7 +480,12 @@
   </section>
 
   <section>
-    <h2><span class="step">7</span> Shopping list <span class="hint">buy column rounds up to real packs · bar shows how much of what you buy gets used</span>
+    <h2><span class="step">7</span> Snacks & household <span class="hint">weekly extras · tick to add them to this week's shop</span></h2>
+    <div class="pchips" id="extras"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">8</span> Shopping list <span class="hint">buy column rounds up to real packs · bar shows how much of what you buy gets used</span>
       <span class="hspace"></span>
       <span style="display:flex;gap:8px;align-items:center">
         <span id="copyFb" style="font-size:12px;color:var(--success-text);font-weight:650;visibility:hidden">✓ copied</span>
@@ -539,7 +544,7 @@ const ING = {
   spaghetti:{ name:'Spaghetti',              aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g',          w:1.00,  c:1.95,  keeps:true,  src:'live' },
   riceNoodles:{ name:'Rice stick noodles',   aisle:'Pantry',         unit:'g',     pack:250,  packLabel:'250g',          w:2.50,  c:2.60,  keeps:true,  src:'ind'  },
   hokkien:  { name:'Hokkien noodles',        aisle:'Pantry',         unit:'g',     pack:440,  packLabel:'440g pack',     w:2.20,  c:2.30,  keeps:true,  src:'ind'  },
-  cannedTom:{ name:'Canned tomatoes',        aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.10,  c:1.10,  keeps:false, src:'live' },
+  cannedTom:{ name:'Diced tomatoes',         aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.10,  c:1.10,  keeps:false, src:'live' },
   coconut:  { name:'Coconut milk',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:3.20,  c:3.20,  keeps:false, src:'live' },
   curry:    { name:'Green curry paste',      aisle:'Pantry',         unit:'g',     pack:220,  packLabel:'220g jar',      w:3.90,  c:3.90,  keeps:true,  src:'ind'  },
   redPaste: { name:'Red curry paste',        aisle:'Pantry',         unit:'g',     pack:210,  packLabel:'210g jar',      w:3.90,  c:3.90,  keeps:true,  src:'ind'  },
@@ -602,6 +607,14 @@ const ING = {
   massamanPaste:{ name:'Massaman curry paste',   aisle:'Pantry',         unit:'g',     pack:210,  packLabel:'210g jar',      w:4.20,  c:4.40,  keeps:true,  src:'ind'  },
   meatballs:{ name:'Beef meatballs',             aisle:'Meat & Seafood', unit:'g',     pack:420,  packLabel:'420g pack',     w:7.00,  c:7.50,  keeps:false, src:'ind'  },
   basilSauce:{ name:'Basilico pasta sauce',      aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g jar',      w:3.50,  c:3.70,  keeps:false, src:'ind'  },
+  muesliBars:{ name:'Muesli / nut butter bars',  aisle:'Snacks',         unit:'g',     pack:175,  packLabel:'175g box',      w:4.50,  c:4.50,  keeps:true,  src:'ind'  },
+  partyMix: { name:'Party mix lollies',          aisle:'Snacks',         unit:'g',     pack:520,  packLabel:'520g bag',      w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
+  chipsStacked:{ name:'Stacked chips',           aisle:'Snacks',         unit:'g',     pack:160,  packLabel:'160g tube',     w:2.50,  c:2.60,  keeps:true,  src:'ind'  },
+  mandarins:{ name:'Mandarins',                  aisle:'Snacks',         unit:'g',     pack:1000, packLabel:'~1kg',          w:5.90,  c:5.90,  keeps:false, src:'ind'  },
+  tissues:  { name:'Facial tissues',             aisle:'Household',      unit:'each',  pack:1,    packLabel:'224pk box',     w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
+  toiletPaper:{ name:'Toilet paper',             aisle:'Household',      unit:'each',  pack:1,    packLabel:'12 pack',       w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
+  shampoo:  { name:'Shampoo',                    aisle:'Household',      unit:'each',  pack:1,    packLabel:'bottle',        w:4.50,  c:4.50,  keeps:true,  src:'ind'  },
+  bodyWash: { name:'Body wash',                  aisle:'Household',      unit:'each',  pack:1,    packLabel:'bottle',        w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
   coconutCream:{ name:'Coconut cream',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:2.20,  c:2.30,  keeps:false, src:'ind'  },
   quesadillaPack:{ name:'Quesadilla packet',     aisle:'Freezer',        unit:'each',  pack:1,    packLabel:'packet',        w:6.50,  c:6.80,  keeps:true,  src:'ind'  },
 };
@@ -614,9 +627,11 @@ const ALDI_NA = ['curry', 'padThaiKit', 'gyoza', 'pestoMeal', 'smokyMeal', 'lemo
 const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTom:0.95, coconut:2.79,
   carrots:1.89, onion:0.50, butter:4.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
   couscous:1.99, cornChips:2.39, burritoKit:5.49, kidneyBeans:0.89, coconutCream:1.69, salsa:1.79,
-  sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79 };
+  sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79,
+  muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:4.99, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49 };
 const RECEIPT_LIVE = ['mince','eggs','cannedTom','couscous','cornChips','burritoKit','kidneyBeans','coconutCream',
-  'salsa','sourCream','guac','meatballs','slawKit','cheese','cherryTom','avocado','banana','onion'];
+  'salsa','sourCream','guac','meatballs','slawKit','cheese','cherryTom','avocado','banana','onion',
+  'muesliBars','partyMix','chipsStacked','mandarins','tissues'];
 for (const [k, g] of Object.entries(ING)) {
   if (ALDI_NA.includes(k)) g.a = null;
   else if (ALDI_ANCHOR[k] != null) g.a = ALDI_ANCHOR[k];
@@ -637,8 +652,8 @@ const RECIPES = [
   { id:'salmon',     name:'Salmon + veg',             ing:{ salmon:500, potatoes:800, carrots:120, broccoli:170 } },
   { id:'steak',      name:'Steak + veg',              ing:{ steak:400, potatoes:800, carrots:120, broccoli:170 } },
   { id:'schnitzel',  name:'Schnitzel + veg',          ing:{ schnitzel:400, potatoes:800, carrots:120, broccoli:170 } },
-  { id:'burritos',   name:'Burritos',                 ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
-  { id:'nachos',     name:'Nachos',                   ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100, cornChips:230, salsa:300 } },
+  { id:'burritos',   name:'Burritos',                 ing:{ mince:250, kidneyBeans:400, cannedTom:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
+  { id:'nachos',     name:'Nachos',                   ing:{ mince:250, kidneyBeans:400, cannedTom:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100, cornChips:230, salsa:300 } },
   { id:'spanakopita',name:'Spanakopita & slaw',       ing:{ spanakopitaP:1, slawKit:400 } },
   { id:'gyoza',      name:'Prawn gyoza',              ing:{ gyoza:14 } },
   { id:'korma',      name:'Korma',                    ing:{ kormaPaste:285, chicken:350, potatoes:600, carrots:120, naan:2, rice:200 } },
@@ -678,6 +693,13 @@ let priceEdits = {};   // k -> {w?,c?,a?} ONLY prices the user explicitly change
 let remotePricesDate = '';   // set when prices.json is fetched from the host
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 let plan = {};   // "day|cat" -> mealId (week planner assignments)
+let extras = {};   // ingredient key -> packs of it added to this week's shop (snacks & household)
+const EXTRAS_DEF = [
+  { k:'muesliBars', cat:'Snacks' }, { k:'partyMix', cat:'Snacks' }, { k:'chipsStacked', cat:'Snacks' },
+  { k:'mandarins', cat:'Snacks' }, { k:'banana', cat:'Snacks', qty:6 },
+  { k:'tissues', cat:'Household' }, { k:'toiletPaper', cat:'Household' },
+  { k:'shampoo', cat:'Household' }, { k:'bodyWash', cat:'Household' },
+];
 
 // ---------------- OPTIMISER CORE ----------------
 function evaluate(mealIds, tOver) {
@@ -693,6 +715,11 @@ function evaluate(mealIds, tOver) {
       req[k] = (req[k] || 0) + q * scale * t;
       (usedBy[k] = usedBy[k] || []).push(r.name + (t > 1 ? ` ×${t}` : ''));
     }
+  }
+  for (const [k, n] of Object.entries(extras)) {
+    if (!n || !ING[k]) continue;
+    req[k] = (req[k] || 0) + n * ING[k].pack;
+    (usedBy[k] = usedBy[k] || []).push('extras');
   }
   const rows = [];
   let totW = 0, totC = 0, totSplit = 0, totAldi = 0, wasteRisk = 0, aldiMissing = 0;
@@ -786,7 +813,7 @@ const EMOJI = { spagbol:'🍝', butterchk:'🍛', greencurry:'🍲', padthai:'�
   weetbixMilk:'🥛', eggsMush:'🍳', eggsAvo:'🥑', porridge:'🥣',
   wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛',
   massaman:'🥘', quesadillas:'🫓', spagMeatballs:'🧆' };
-const AISLE_ICON = { 'Meat & Seafood':'🥩', 'Fresh Produce':'🥬', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫' };
+const AISLE_ICON = { 'Meat & Seafood':'🥩', 'Fresh Produce':'🥬', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫', 'Snacks':'🍿', 'Household':'🧻' };
 const $ = id => document.getElementById(id);
 const fmt = v => '$' + v.toFixed(2);
 const qty = (v, u) => (u === 'g' || u === 'ml') ? (v >= 1000 ? (v/1000).toFixed(v % 1000 ? 1 : 0) + (u === 'g' ? 'kg' : 'L') : v + u) : v + ' ' + u;
@@ -920,7 +947,7 @@ function renderSwaps() {
 }
 
 function renderList(e) {
-  const aisles = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry'];
+  const aisles = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry', 'Snacks', 'Household'];
   let html = `<thead><tr>
     <th>Item</th><th>Need → Buy</th><th class="num">Woolies $</th><th class="num">Coles $</th><th class="num">Aldi $</th>
     <th>Utilisation</th><th class="num">Cost (best)</th></tr></thead><tbody>`;
@@ -953,8 +980,10 @@ function renderList(e) {
       </tr>`;
     }
   }
+  const nHave = e.rows.filter(r => r.have).length;
+  html += `<tr class="aisle" style="background:var(--surface-1)"><td colspan="5" style="font-size:13px;text-transform:none;letter-spacing:0;color:var(--text-primary)"><b>Shop total</b> <span style="font-weight:400;color:var(--muted)">· best prices${nHave ? ` · excludes ${nHave} pantry-ticked item${nHave > 1 ? 's' : ''}` : ''}</span></td><td></td><td class="num" style="font-size:15px;font-weight:750;color:var(--series-1)">${fmt(e.totSplit)}</td></tr>`;
   html += `</tbody>`;
-  $('list').innerHTML = picked.size ? html : '<tbody><tr><td style="color:var(--muted)">Pick some meals to build your list.</td></tr></tbody>';
+  $('list').innerHTML = (picked.size || Object.keys(extras).length) ? html : '<tbody><tr><td style="color:var(--muted)">Pick some meals to build your list.</td></tr></tbody>';
   document.querySelectorAll('input.price').forEach(inp => inp.onchange = () => {
     const v = parseFloat(inp.value);
     const k = inp.dataset.k, f = inp.dataset.s;
@@ -977,7 +1006,7 @@ function saveState() {
   if (!CAN_STORE) return;
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
-      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], priceEdits,
+      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], priceEdits, extras,
     }));
   } catch (err) { /* storage full or blocked: carry on */ }
 }
@@ -996,6 +1025,10 @@ function loadState() {
       for (const [cell, id] of Object.entries(s.plan)) if (picked.has(id)) plan[cell] = id;
     }
     if (Array.isArray(s.pantryHave)) pantryHave = new Set(s.pantryHave.filter(k => ING[k]));
+    if (s.extras && typeof s.extras === 'object') {
+      extras = {};
+      for (const [k, n] of Object.entries(s.extras)) if (ING[k] && typeof n === 'number' && n > 0) extras[k] = n;
+    }
     if (s.priceEdits && typeof s.priceEdits === 'object') {
       priceEdits = s.priceEdits;
       for (const [k, ed] of Object.entries(priceEdits)) {
@@ -1071,10 +1104,33 @@ function renderPantry(e) {
   });
 }
 
+function renderExtras() {
+  $('extras').innerHTML = EXTRAS_DEF.map(d => {
+    const g = ING[d.k]; if (!g) return '';
+    const on = !!extras[d.k];
+    const qty = d.qty || 1;
+    const best = Math.min(g.w, g.c, g.a == null ? Infinity : g.a) * qty;
+    return `<div class="pchip ${on ? 'on' : ''}" data-k="${d.k}" data-q="${qty}">
+      <span class="pbox">✓</span>
+      <span>
+        <span class="pnm">${g.name}${qty > 1 ? ` ×${qty}` : ''}</span><br>
+        <span class="psub">${d.cat} · ${g.packLabel}</span>
+      </span>
+      <span class="psave" style="color:${on ? 'var(--series-1)' : 'var(--muted)'}">${fmt(best)}</span>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('#extras .pchip').forEach(el => el.onclick = () => {
+    const k = el.dataset.k, q = parseInt(el.dataset.q, 10);
+    if (extras[k]) { delete extras[k]; toast(`${ING[k].name} removed from the shop`); }
+    else { extras[k] = q; toast(`${ING[k].name} added to this week's shop`); }
+    renderAll();
+  });
+}
+
 function renderAll() {
   syncPlan();
   const e = evaluate([...picked]);
-  renderMeals(); renderPlan(); renderTiles(e); renderSticky(e); renderStores(e); renderSwaps(); renderList(e); renderPantry(e);
+  renderMeals(); renderPlan(); renderTiles(e); renderSticky(e); renderStores(e); renderSwaps(); renderList(e); renderPantry(e); renderExtras();
   saveState();
   $('foot').innerHTML = `PantryPicks beta · <a href="https://pantrypicks.app" style="color:var(--series-1);text-decoration:none;font-weight:600">pantrypicks.app</a> · base recipes serve ${BASE_SERVES}, quantities scaled to ${people} people · prices in AUD.
     ${CAN_STORE ? 'Your picks, plan, pantry ticks and price edits are saved on this device. <a href="#" onclick="resetState();return false" style="color:var(--muted)">Reset saved data</a>.' : ''}
@@ -1083,7 +1139,7 @@ function renderAll() {
     Optimiser objective = best-price basket cost + $ value of perishable leftovers.`;
 }
 // ---------------- EXPORT ----------------
-const AISLES = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry'];
+const AISLES = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry', 'Snacks', 'Household'];
 function exportRows() {
   const e = evaluate([...picked]);
   const out = [];
