@@ -600,6 +600,8 @@ const ING = {
   guac:     { name:'Guacamole dip',          aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'200g tub',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
   spanakopitaP:{ name:'Spanakopita (family size)', aisle:'Freezer',  unit:'each',  pack:1,    packLabel:'whole',         w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
   massamanPaste:{ name:'Massaman curry paste',   aisle:'Pantry',         unit:'g',     pack:210,  packLabel:'210g jar',      w:4.20,  c:4.40,  keeps:true,  src:'ind'  },
+  meatballs:{ name:'Beef meatballs',             aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack (12)',w:7.00,  c:7.50,  keeps:false, src:'ind'  },
+  basilSauce:{ name:'Basilico pasta sauce',      aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g jar',      w:3.50,  c:3.70,  keeps:false, src:'ind'  },
   coconutCream:{ name:'Coconut cream',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:2.20,  c:2.30,  keeps:false, src:'ind'  },
   quesadillaPack:{ name:'Quesadilla packet',     aisle:'Freezer',        unit:'each',  pack:1,    packLabel:'packet',        w:6.50,  c:6.80,  keeps:true,  src:'ind'  },
 };
@@ -638,6 +640,7 @@ const RECIPES = [
   { id:'tacobowls',  name:'Taco rice bowls',          ing:{ mince:250, kidneyBeans:400, onion:0.5, burritoKit:0.5, guac:1, sourCream:100 } },
   { id:'massaman',   name:'Massaman curry',           ing:{ massamanPaste:210, chicken:300, onion:1, potatoes:600, coconutCream:400, rice:200 } },
   { id:'quesadillas',name:'Quesadillas & slaw',       ing:{ quesadillaPack:2, slawKit:400 } },
+  { id:'spagMeatballs', name:'Spaghetti & meatballs',  ing:{ meatballs:500, spaghetti:200, basilSauce:500 } },
   // Breakfasts (serves 2) — Muz's spec
   { id:'weetbixMilk', name:'Weet-Bix & milk',           cat:'breakfast', ing:{ weetbix:45, milk:300 } },
   { id:'eggsMush',    name:'Eggs & mushrooms',          cat:'breakfast', ing:{ eggs:4, mushrooms:100 } },
@@ -768,13 +771,14 @@ const SHORT = { chicken:'chicken', mince:'mince', salmon:'salmon', steak:'steak'
   naan:'naan', cherryTom:'cherry toms', chickpeas:'chickpeas', corn:'corn', hmDressing:'dressing',
   padThaiKit:'pad thai kit', satayJar:'satay jar', cashewJar:'cashew sauce', kidneyBeans:'kidney beans',
   burritoKit:'burrito kit', guac:'guac', spanakopitaP:'spanakopita',
-  massamanPaste:'massaman paste', coconutCream:'coconut cream', quesadillaPack:'quesadillas' };
+  massamanPaste:'massaman paste', coconutCream:'coconut cream', quesadillaPack:'quesadillas',
+  meatballs:'meatballs', basilSauce:'basilico sauce' };
 const EMOJI = { spagbol:'🍝', butterchk:'🍛', greencurry:'🍲', padthai:'🍤', pieveg:'🥧', redcurry:'🌶️',
   satay:'🍜', kiev:'🍗', salmon:'🐟', steak:'🥩', schnitzel:'🍖', burritos:'🌯', nachos:'🧀',
   spanakopita:'🥬', gyoza:'🥟', korma:'🍚', cashewchk:'🥜', sweetsour:'🍍', tacobowls:'🌮',
   weetbixMilk:'🥛', eggsMush:'🍳', eggsAvo:'🥑', porridge:'🥣',
   wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛',
-  massaman:'🥘', quesadillas:'🫓' };
+  massaman:'🥘', quesadillas:'🫓', spagMeatballs:'🧆' };
 const AISLE_ICON = { 'Meat & Seafood':'🥩', 'Fresh Produce':'🥬', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫' };
 const $ = id => document.getElementById(id);
 const fmt = v => '$' + v.toFixed(2);
