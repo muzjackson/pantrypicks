@@ -480,12 +480,7 @@
   </section>
 
   <section>
-    <h2><span class="step">7</span> Snacks & household <span class="hint">weekly extras · tick to add them to this week's shop</span></h2>
-    <div class="pchips" id="extras"></div>
-  </section>
-
-  <section>
-    <h2><span class="step">8</span> Shopping list <span class="hint">buy column rounds up to real packs · bar shows how much of what you buy gets used</span>
+    <h2><span class="step">7</span> Shopping list <span class="hint">buy column rounds up to real packs · bar shows how much of what you buy gets used</span>
       <span class="hspace"></span>
       <span style="display:flex;gap:8px;align-items:center">
         <span id="copyFb" style="font-size:12px;color:var(--success-text);font-weight:650;visibility:hidden">✓ copied</span>
@@ -683,6 +678,7 @@ const CATS = [
   { id:'lunch',     label:'Lunch' },
   { id:'dinner',    label:'Dinner' },
 ];
+const TABS = [...CATS, { id:'snacks', label:'Snacks' }];   // planner rows use CATS; the snacks tab holds weekly extras, not meals
 let activeCat = 'dinner';
 
 const BASE_SERVES = 2;   // recipe quantities are written for 2 people (Muz's spec, 26 Jul 2026)
@@ -701,6 +697,8 @@ const EXTRAS_DEF = [
   { k:'tissues', cat:'Household' }, { k:'toiletPaper', cat:'Household' },
   { k:'shampoo', cat:'Household' }, { k:'bodyWash', cat:'Household' },
 ];
+const EXTRA_EMOJI = { muesliBars:'🍫', partyMix:'🍬', chipsStacked:'🥔', mandarins:'🍊', banana:'🍌',
+  tissues:'🤧', toiletPaper:'🧻', shampoo:'🧴', bodyWash:'🧼' };
 
 // ---------------- OPTIMISER CORE ----------------
 function evaluate(mealIds, tOver) {
@@ -820,11 +818,34 @@ const fmt = v => '$' + v.toFixed(2);
 const qty = (v, u) => (u === 'g' || u === 'ml') ? (v >= 1000 ? (v/1000).toFixed(v % 1000 ? 1 : 0) + (u === 'g' ? 'kg' : 'L') : v + u) : v + ' ' + u;
 
 function renderMeals() {
-  $('tabs').innerHTML = CATS.map(c => {
-    const n = RECIPES.filter(r => r.cat === c.id && picked.has(r.id)).length;
+  $('tabs').innerHTML = TABS.map(c => {
+    const n = c.id === 'snacks' ? Object.keys(extras).length : RECIPES.filter(r => r.cat === c.id && picked.has(r.id)).length;
     return `<button class="tab ${activeCat === c.id ? 'on' : ''}" data-cat="${c.id}">${c.label}${n ? `<span class="n">${n}</span>` : ''}</button>`;
   }).join('');
   document.querySelectorAll('.tab').forEach(el => el.onclick = () => { activeCat = el.dataset.cat; renderMeals(); });
+  if (activeCat === 'snacks') {
+    $('meals').innerHTML = EXTRAS_DEF.map(d => {
+      const g = ING[d.k]; if (!g) return '';
+      const on = !!extras[d.k];
+      const q = d.qty || 1;
+      const best = Math.min(g.w, g.c, g.a == null ? Infinity : g.a) * q;
+      return `<div class="meal ${on ? 'on' : ''}" data-k="${d.k}" data-q="${q}">
+        <span class="tick">✓</span>
+        <div class="emo">${EXTRA_EMOJI[d.k] || (d.cat === 'Snacks' ? '🍿' : '🧻')}</div>
+        <div class="nm">${g.name}${q > 1 ? ` ×${q}` : ''}</div>
+        <div class="ings">${d.cat} · ${g.packLabel} · ${fmt(best)}</div>
+      </div>`;
+    }).join('');
+    const nx = Object.keys(extras).length;
+    $('pickCount').textContent = nx ? `${nx} extra${nx > 1 ? 's' : ''} added to this week's shop` : 'tap to add weekly extras to the shop';
+    document.querySelectorAll('.meal').forEach(el => el.onclick = () => {
+      const k = el.dataset.k, q = parseInt(el.dataset.q, 10);
+      if (extras[k]) { delete extras[k]; toast(`${ING[k].name} removed from the shop`); }
+      else { extras[k] = q; toast(`${ING[k].name} added to this week's shop`); }
+      renderAll();
+    });
+    return;
+  }
   $('meals').innerHTML = RECIPES.filter(r => r.cat === activeCat).map(r => {
     const names = Object.keys(r.ing).map(k => SHORT[k]);
     const t = times[r.id] || 1;
@@ -849,7 +870,8 @@ function renderMeals() {
     return n ? `${n} ${c.label.toLowerCase()}${n > 1 ? (c.id === 'lunch' ? 'es' : 's') : ''}` : null;
   }).filter(Boolean);
   const totT = [...picked].reduce((s, id) => s + (times[id] || 1), 0);
-  $('pickCount').textContent = `${counts.join(' · ') || 'nothing picked'} × ${people} serves${totT > picked.size ? ` · ${totT} cook-ups` : ''}`;
+  const nEx = Object.keys(extras).length;
+  $('pickCount').textContent = `${counts.join(' · ') || 'nothing picked'} × ${people} serves${totT > picked.size ? ` · ${totT} cook-ups` : ''}${nEx ? ` · ${nEx} extra${nEx > 1 ? 's' : ''}` : ''}`;
   document.querySelectorAll('.meal').forEach(el => el.onclick = (ev) => {
     if (ev.target.closest('.mult')) return;   // stepper clicks don't toggle the card
     const id = el.dataset.id;
@@ -1105,33 +1127,10 @@ function renderPantry(e) {
   });
 }
 
-function renderExtras() {
-  $('extras').innerHTML = EXTRAS_DEF.map(d => {
-    const g = ING[d.k]; if (!g) return '';
-    const on = !!extras[d.k];
-    const qty = d.qty || 1;
-    const best = Math.min(g.w, g.c, g.a == null ? Infinity : g.a) * qty;
-    return `<div class="pchip ${on ? 'on' : ''}" data-k="${d.k}" data-q="${qty}">
-      <span class="pbox">✓</span>
-      <span>
-        <span class="pnm">${g.name}${qty > 1 ? ` ×${qty}` : ''}</span><br>
-        <span class="psub">${d.cat} · ${g.packLabel}</span>
-      </span>
-      <span class="psave" style="color:${on ? 'var(--series-1)' : 'var(--muted)'}">${fmt(best)}</span>
-    </div>`;
-  }).join('');
-  document.querySelectorAll('#extras .pchip').forEach(el => el.onclick = () => {
-    const k = el.dataset.k, q = parseInt(el.dataset.q, 10);
-    if (extras[k]) { delete extras[k]; toast(`${ING[k].name} removed from the shop`); }
-    else { extras[k] = q; toast(`${ING[k].name} added to this week's shop`); }
-    renderAll();
-  });
-}
-
 function renderAll() {
   syncPlan();
   const e = evaluate([...picked]);
-  renderMeals(); renderPlan(); renderTiles(e); renderSticky(e); renderStores(e); renderSwaps(); renderList(e); renderPantry(e); renderExtras();
+  renderMeals(); renderPlan(); renderTiles(e); renderSticky(e); renderStores(e); renderSwaps(); renderList(e); renderPantry(e);
   saveState();
   $('foot').innerHTML = `PantryPicks beta · <a href="https://pantrypicks.app" style="color:var(--series-1);text-decoration:none;font-weight:600">pantrypicks.app</a> · base recipes serve ${BASE_SERVES}, quantities scaled to ${people} people · prices in AUD.
     ${CAN_STORE ? 'Your picks, plan, pantry ticks and price edits are saved on this device. <a href="#" onclick="resetState();return false" style="color:var(--muted)">Reset saved data</a>.' : ''}
