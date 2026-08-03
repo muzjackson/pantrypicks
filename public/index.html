@@ -395,6 +395,12 @@
   .pchip .psave { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--success-text); white-space: nowrap; }
   .nopantry { color: var(--muted); font-size: 13px; }
   tr.inpantry td { opacity: 0.55; }
+  tr.skiprow td { opacity: 0.5; }
+  tr.skiprow .iname { text-decoration: line-through; }
+  .rmv { border: none; background: none; color: var(--muted); cursor: pointer; font-size: 13px;
+    line-height: 1; padding: 3px 7px; border-radius: 7px; margin-left: 6px; vertical-align: 1px; }
+  .rmv:hover { background: var(--surface-1); color: #B3261E; }
+  .rmv.undo { color: var(--series-1); font-size: 12px; font-weight: 650; }
   .pantryb {
     font-size: 10px; font-weight: 700; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
     color: var(--success-text); background: color-mix(in srgb, var(--status-good) 10%, transparent);
@@ -686,6 +692,7 @@ let people = 2;          // scaled by people/BASE_SERVES
 let picked = new Set(['spagbol','butterchk','padthai','steak','nachos']);
 let times = {};   // meal id -> cook-ups per week (default 1)
 let pantryHave = new Set();   // ingredient keys ticked as "already in the pantry"
+let skipped = new Set();      // ingredient keys removed from this week's list (any item, incl. perishables)
 let priceEdits = {};   // k -> {w?,c?,a?} ONLY prices the user explicitly changed (these outrank remote updates)
 let remotePricesDate = '';   // set when prices.json is fetched from the host
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -733,14 +740,15 @@ function evaluate(mealIds, tOver) {
     const leftoverVal = bought > 0 ? (leftover / bought) * cost : 0;
     const risk = g.keeps ? 0 : leftoverVal;
     const have = pantryHave.has(k) && g.keeps;   // only keepable staples can be "from the pantry"
-    if (!have) {
+    const skip = skipped.has(k);                 // removed from this week's shop by the user
+    if (!have && !skip) {
       totW += costW; totC += costC; totSplit += cost; wasteRisk += risk;
       // Aldi + top-up: buy at Aldi when stocked, otherwise at the cheaper major
       totAldi += costA != null ? costA : packs * Math.min(g.w, g.c);
       if (costA == null) aldiMissing++;
     }
     rows.push({ k, g, need, packs, bought, leftover, usedPct: bought ? need / bought : 1,
-      costW, costC, costA, cost, leftoverVal, risk, have, usedBy: usedBy[k] });
+      costW, costC, costA, cost, leftoverVal, risk, have, skip, usedBy: usedBy[k] });
   }
   const nIng = rows.length;
   const shared = rows.filter(r => r.usedBy.length >= 2).length;
@@ -992,8 +1000,11 @@ function renderList(e) {
             ? `${qty(Math.round(r.leftover * 10) / 10, r.g.unit)} left · keeps`
             : `<span class="w">⚠ ${qty(Math.round(r.leftover * 10) / 10, r.g.unit)} at risk (${fmt(r.risk)})</span>`)
         : 'fully used';
-      html += `<tr class="${r.have ? 'inpantry' : ''}">
-        <td><span class="iname">${r.g.name}</span>${r.have ? '<span class="pantryb">🏠 pantry</span>' : ''}<br>
+      html += `<tr class="${r.have ? 'inpantry' : ''}${r.skip ? ' skiprow' : ''}">
+        <td><span class="iname">${r.g.name}</span>${r.have ? '<span class="pantryb">🏠 pantry</span>' : ''}${
+          r.skip
+            ? `<button class="rmv undo" data-k="${r.k}" title="Put this item back on the list">↩ add back</button>`
+            : `<button class="rmv" data-k="${r.k}" title="Remove from this week's list (doesn't change your meals)">✕</button>`}<br>
             <span class="isub">${r.g.packLabel} · ${r.usedBy.length} meal${r.usedBy.length > 1 ? 's' : ''} · <span class="${r.g.src === 'live' ? 'src-live' : ''}">${r.g.src === 'live' ? 'live price' : 'indicative'}</span></span></td>
         <td>${qty(Math.round(r.need * 10) / 10, r.g.unit)} → <b>${r.packs}×</b> ${r.g.packLabel}</td>
         <td class="num"><input class="price ${wCheap ? 'cheaper' : ''}" type="number" step="0.05" min="0" value="${r.g.w.toFixed(2)}" data-k="${r.k}" data-s="w">${wCheap ? '<span class="storeb">W</span>' : ''}</td>
@@ -1001,14 +1012,25 @@ function renderList(e) {
         <td class="num"><input class="price ${aCheap ? 'cheaper' : ''}" type="number" step="0.05" min="0" value="${r.g.a == null ? '' : r.g.a.toFixed(2)}" placeholder="n/a" title="${r.g.a == null ? 'Not stocked at Aldi — type a price to add it' : 'Clear to mark as not stocked at Aldi'}" data-k="${r.k}" data-s="a">${aCheap ? '<span class="storeb">A</span>' : ''}</td>
         <td class="util"><div class="bar" title="${usedPct}% of purchase used"><div class="fill" style="width:${usedPct}%"></div></div>
             <div class="cap">${usedPct}% used · ${wasteNote}</div></td>
-        <td class="num">${r.have ? '<span style="color:var(--success-text);font-weight:650;font-size:12px">in pantry</span>' : fmt(r.cost)}</td>
+        <td class="num">${r.have ? '<span style="color:var(--success-text);font-weight:650;font-size:12px">in pantry</span>' : r.skip ? '<span style="color:var(--muted);font-weight:650;font-size:12px">removed</span>' : fmt(r.cost)}</td>
       </tr>`;
     }
   }
   const nHave = e.rows.filter(r => r.have).length;
-  html += `<tr class="aisle" style="background:var(--surface-1)"><td colspan="5" style="font-size:13px;text-transform:none;letter-spacing:0;color:var(--text-primary)"><b>Shop total</b> <span style="font-weight:400;color:var(--muted)">· best prices${nHave ? ` · excludes ${nHave} pantry-ticked item${nHave > 1 ? 's' : ''}` : ''}</span></td><td></td><td class="num" style="font-size:15px;font-weight:750;color:var(--series-1)">${fmt(e.totSplit)}</td></tr>`;
+  const nSkip = e.rows.filter(r => r.skip && !r.have).length;
+  const exNotes = [
+    nHave ? `${nHave} pantry-ticked` : null,
+    nSkip ? `${nSkip} removed` : null,
+  ].filter(Boolean).join(' + ');
+  html += `<tr class="aisle" style="background:var(--surface-1)"><td colspan="5" style="font-size:13px;text-transform:none;letter-spacing:0;color:var(--text-primary)"><b>Shop total</b> <span style="font-weight:400;color:var(--muted)">· best prices${exNotes ? ` · excludes ${exNotes} item${nHave + nSkip > 1 ? 's' : ''}` : ''}</span></td><td></td><td class="num" style="font-size:15px;font-weight:750;color:var(--series-1)">${fmt(e.totSplit)}</td></tr>`;
   html += `</tbody>`;
   $('list').innerHTML = (picked.size || Object.keys(extras).length) ? html : '<tbody><tr><td style="color:var(--muted)">Pick some meals to build your list.</td></tr></tbody>';
+  document.querySelectorAll('.rmv').forEach(b => b.onclick = () => {
+    const k = b.dataset.k;
+    if (skipped.has(k)) { skipped.delete(k); toast(`${ING[k].name} back on the list`); }
+    else { skipped.add(k); toast(`${ING[k].name} removed from this week's shop`); }
+    renderAll();
+  });
   document.querySelectorAll('input.price').forEach(inp => inp.onchange = () => {
     const v = parseFloat(inp.value);
     const k = inp.dataset.k, f = inp.dataset.s;
@@ -1031,7 +1053,7 @@ function saveState() {
   if (!CAN_STORE) return;
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
-      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], priceEdits, extras,
+      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], skipped: [...skipped], priceEdits, extras,
     }));
   } catch (err) { /* storage full or blocked: carry on */ }
 }
@@ -1050,6 +1072,7 @@ function loadState() {
       for (const [cell, id] of Object.entries(s.plan)) if (picked.has(id)) plan[cell] = id;
     }
     if (Array.isArray(s.pantryHave)) pantryHave = new Set(s.pantryHave.filter(k => ING[k]));
+    if (Array.isArray(s.skipped)) skipped = new Set(s.skipped.filter(k => ING[k]));
     if (s.extras && typeof s.extras === 'object') {
       extras = {};
       for (const [k, n] of Object.entries(s.extras)) if (ING[k] && typeof n === 'number' && n > 0) extras[k] = n;
@@ -1107,7 +1130,7 @@ function renderPlan() {
 function renderPantry(e) {
   // Multi-use packs: keepable items where this week's buy leaves leftover (or already ticked)
   const cands = e.rows
-    .filter(r => r.g.keeps && (r.leftover > 0.01 || pantryHave.has(r.k)))
+    .filter(r => !r.skip && r.g.keeps && (r.leftover > 0.01 || pantryHave.has(r.k)))
     .sort((a, b) => b.cost - a.cost);
   $('pantrySec').style.display = picked.size ? '' : 'none';
   $('pantry').innerHTML = cands.length ? cands.map(r => `
@@ -1146,7 +1169,7 @@ function exportRows() {
   const e = evaluate([...picked]);
   const out = [];
   for (const aisle of AISLES) {
-    const rows = e.rows.filter(r => r.g.aisle === aisle && !r.have).sort((a, b) => b.cost - a.cost);
+    const rows = e.rows.filter(r => r.g.aisle === aisle && !r.have && !r.skip).sort((a, b) => b.cost - a.cost);
     for (const r of rows) out.push({ aisle, r });
   }
   return { e, out };
