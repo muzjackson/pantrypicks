@@ -1,6 +1,6 @@
 {
- "updated": "2026-08-05",
- "source": "GroceryWatchlist 05.08.26 (banana Coles) + Aldi Whitfords receipt 03.08.26 + AU anchor research",
+ "updated": "2026-08-06",
+ "source": "Grocerize + GrocerySpy 06.08.26 (banana Coles) + Aldi Whitfords receipt 03.08.26 + AU anchor research",
  "pipeline": "claude-scheduled-task",
  "prices": {
   "chicken": {
@@ -287,7 +287,7 @@
   },
   "banana": {
    "w": 0.91,
-   "c": 0.77,
+   "c": 0.83,
    "a": 0.67,
    "src": "live"
   },
