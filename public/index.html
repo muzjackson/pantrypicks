@@ -10,6 +10,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" href="icon-192.png">
+<link rel="icon" href="favicon.ico" sizes="32x32">
 <title>PantryPicks — Weekly Shop Optimiser</title>
 <style>
   .viz-root {
@@ -155,6 +156,13 @@
   .meal .emo { font-size: 20px; line-height: 1; margin-bottom: 6px; }
   .meal .nm { font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; padding-right: 20px; }
   .meal .ings { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .meal .rbtn { position: absolute; right: 8px; bottom: 8px; border: none; background: none;
+    font-size: 14px; line-height: 1; padding: 4px; border-radius: 7px; cursor: pointer; opacity: 0.55; }
+  .meal .rbtn:hover { opacity: 1; background: var(--surface-1); }
+  .rc-ings { background: var(--surface-1); border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; }
+  .rc-ings li { margin: 2px 0; }
+  .rc-steps { padding-left: 20px; font-size: 13.5px; }
+  .rc-steps li { margin: 8px 0; line-height: 1.45; }
   .meal .tick {
     position: absolute; top: 10px; right: 10px; width: 19px; height: 19px; border-radius: 999px;
     background: var(--series-1); color: #fff; font-size: 11px; font-weight: 800;
@@ -497,6 +505,19 @@
     <div class="tablewrap"><table id="list"></table></div>
   </section>
 
+  <div id="recipeMode" class="overlay" hidden>
+    <div class="ovpanel">
+      <div class="ovhead">
+        <div>
+          <div class="ovtitle" id="rcTitle"></div>
+          <div class="ovsub" id="rcSub"></div>
+        </div>
+        <button class="xbtn" id="rcClose">Done</button>
+      </div>
+      <div class="ovbody" id="rcBody"></div>
+    </div>
+  </div>
+
   <div id="storeMode" class="overlay" hidden>
     <div class="ovpanel">
       <div class="ovhead">
@@ -707,6 +728,147 @@ const EXTRAS_DEF = [
 const EXTRA_EMOJI = { muesliBars:'🍫', partyMix:'🍬', chipsStacked:'🥔', mandarins:'🍊', banana:'🍌',
   tissues:'🤧', toiletPaper:'🧻', shampoo:'🧴', bodyWash:'🧼' };
 
+// Cooking methods, written for the 2-serve base. Ingredient quantities shown in the
+// recipe view are scaled to the current household size automatically.
+const RECIPE_STEPS = {
+  spagbol: [
+    'Boil salted water. Cook the spaghetti to packet time, drain, reserve a splash of pasta water.',
+    'Meanwhile, dice the half onion and soften in a little oil over medium heat, 3-4 min.',
+    'Add the mince, break it up and brown well, 5-6 min.',
+    'Stir in the tomato paste and cook 1 min, then add the diced tomatoes. Simmer 10-15 min, season.',
+    'Loosen the sauce with pasta water if needed, toss through the spaghetti and serve.'],
+  butterchk: [
+    'Peel and chunk the potatoes, halve the carrots. Steam or boil until tender, 12-15 min.',
+    'Start the rice (absorption or cooker: rice + 1.5x water).',
+    'Dice the chicken, brown in a little oil over medium-high, 4-5 min.',
+    'Pour in the butter chicken sauce, rinse the jar with a splash of water, simmer gently 10 min until cooked through.',
+    'Warm the naan in a dry pan or oven. Serve curry on rice with veg and naan.'],
+  greencurry: [
+    'Start the rice. Chop the chicken, capsicum, carrot and broccoli.',
+    'Fry the green curry paste in a little oil 1 min until fragrant.',
+    'Add the chicken, coat and seal, 3-4 min.',
+    'Add the veg and a can of water (or the paste jar rinsed), simmer 10-12 min until chicken is cooked and veg tender.',
+    'Serve over rice.'],
+  padthai: [
+    'Prep the veg: julienne the carrot, slice the capsicum, small broccoli florets.',
+    'Soak or cook the kit noodles per packet.',
+    'Stir-fry the veg hot and fast, 2-3 min.',
+    'Push aside, scramble the egg in the pan.',
+    'Add noodles and the kit sauce, toss everything 2 min, top with the kit garnish.'],
+  pieveg: [
+    'Oven to 180C fan. Bake the pies per packet, ~25 min from frozen.',
+    'Peel and chunk the potatoes, boil 12-15 min, mash with butter and a splash of milk.',
+    'Steam the carrots and broccoli in the last 8 min.',
+    'Plate pie on mash with veg, gravy if you have it.'],
+  redcurry: [
+    'Start the rice. Chop the chicken and veg.',
+    'Fry the red curry paste in oil 1 min.',
+    'Seal the chicken 3-4 min, add veg and a splash of water.',
+    'Simmer 10-12 min until cooked through. Serve on rice.'],
+  satay: [
+    'Chop the chicken and veg. Loosen the hokkien noodles in hot water, drain.',
+    'Brown the chicken in a hot wok, 4-5 min.',
+    'Add the veg, stir-fry 3 min.',
+    'Add the satay sauce and noodles, toss 2 min until coated and hot.'],
+  kiev: [
+    'Oven to 200C. Bake the kievs per packet, ~30 min, until golden and 75C inside.',
+    'Peel, chunk and boil the potatoes 12-15 min, mash.',
+    'Steam the carrots and broccoli in the last 8 min.',
+    'Rest kievs 2 min before plating (the butter is lava).'],
+  salmon: [
+    'Boil chunked potatoes 12-15 min. Steam carrots and broccoli in the last 8.',
+    'Pat the salmon dry, season the skin well.',
+    'Hot pan, little oil: skin-side down 4-5 min without moving until crisp.',
+    'Flip for 1-2 min to finish. Rest 1 min, serve with veg and lemon if handy.'],
+  steak: [
+    'Take the steaks out 20 min early. Boil chunked potatoes, steam the veg.',
+    'Pat steaks dry, salt well. Screaming hot pan with a little oil.',
+    'Porterhouse ~2 min a side for medium-rare (adjust to thickness), butter-baste at the end.',
+    'Rest 5 min under foil, exactly as long as they cooked. Serve with veg.'],
+  schnitzel: [
+    'Oven to 200C. Bake the schnitzels per packet ~20-25 min, flip halfway, until crisp.',
+    'Boil chunked potatoes 12-15 min, mash or serve chunked.',
+    'Steam carrots and broccoli in the last 8 min.',
+    'Plate with lemon over the schnitzel.'],
+  burritos: [
+    'Dice the half onion, soften in oil 3 min. Add the mince, brown well.',
+    'Add the kit spice mix, half the beans (drained) and the diced tomatoes. Simmer 8-10 min until thick.',
+    'Warm the kit tortillas per packet.',
+    'Build at the table: mince, guac, sour cream, any salsa from the kit.'],
+  nachos: [
+    'Oven to 180C. Make the same mince base as burritos: onion, mince, kit spice, beans, diced tomatoes, simmered thick.',
+    'Layer corn chips on an oven tray, spoon over the mince and salsa.',
+    'Bake 8-10 min until hot (add cheese if you have some in the pantry).',
+    'Top with guac and sour cream straight from the oven.'],
+  spanakopita: [
+    'Oven to 180C fan. Bake the spanakopita per packet, ~35-40 min, until deep golden.',
+    'Rest 5 min so the filling sets.',
+    'Toss the slaw kit with its dressing just before serving.'],
+  gyoza: [
+    'Hot pan, little oil: fry the gyoza flat-side down 2 min until golden.',
+    'Add 60ml water, lid on, steam 5-6 min until cooked through.',
+    'Lid off, crisp the bases 1 min. Serve with soy or the packet sauce.'],
+  korma: [
+    'Boil chunked potatoes until just tender. Start the rice.',
+    'Dice and brown the chicken, 4-5 min.',
+    'Add the korma paste, cook 1 min, then a splash of water. Add potatoes.',
+    'Simmer gently 10 min. Warm the naan and serve.'],
+  cashewchk: [
+    'Start the rice. Chop chicken and veg.',
+    'Brown the chicken in a hot wok, add veg and stir-fry 3 min.',
+    'Add the cashew sauce and cashews, toss 2-3 min until hot and coated.',
+    'Serve over rice.'],
+  sweetsour: [
+    'Start the rice. Chop chicken and veg.',
+    'Brown the chicken 4-5 min, add veg, stir-fry 3 min.',
+    'Add the sweet & sour sauce, simmer 3-4 min.',
+    'Serve over rice.'],
+  tacobowls: [
+    'Dice the half onion, soften, then brown the mince.',
+    'Add kit spice and the beans (drained), simmer 8 min.',
+    'Warm the kit shells or serve bowl-style.',
+    'Top with guac and sour cream.'],
+  massaman: [
+    'Fry the massaman paste in a little oil 1 min.',
+    'Add diced chicken, coat and seal 3-4 min.',
+    'Add the onion (wedges), chunked potatoes and coconut cream. Simmer 20-25 min until potatoes are tender.',
+    'Start the rice while it simmers. Serve curry on rice.'],
+  quesadillas: [
+    'Heat the quesadillas per packet: dry pan over medium, 3-4 min a side until crisp and melted (or oven per pack).',
+    'Cut into wedges.',
+    'Toss the slaw kit with its dressing and serve alongside.'],
+  spagMeatballs: [
+    'Boil salted water, cook the spaghetti to packet time.',
+    'Brown the meatballs in a little oil, rolling for colour, 5-6 min.',
+    'Pour in the basil sauce, rinse the jar with a splash of water, simmer 8-10 min until meatballs are cooked through.',
+    'Toss with the spaghetti and serve.'],
+  weetbixMilk: ['Bowl, Weet-Bix, milk. Breakfast of champions in 30 seconds.'],
+  eggsMush: [
+    'Slice the mushrooms, fry in butter over medium-high until golden, 4-5 min. Season.',
+    'Cook the eggs your way: fried in the same pan, or whisked and scrambled over low heat.',
+    'Plate together.'],
+  eggsAvo: [
+    'Toast the bread.',
+    'Smash the half avo onto the toast, season with salt and pepper.',
+    'Top with eggs: poached (3 min in barely simmering water) or fried.'],
+  porridge: [
+    'Oats and milk in a pot over medium heat.',
+    'Stir 4-5 min until thick and creamy.',
+    'Drizzle with honey.'],
+  wrapCCA: [
+    'Lay out the tortillas, layer chicken slices, cheese and sliced avo.',
+    'Roll tight, tucking the ends.',
+    'Optional: 2 min a side in a dry pan to toast and melt.'],
+  couscousSalad: [
+    'Pour boiling water over the couscous (equal volume), cover 5 min, fluff with a fork.',
+    'Halve the cherry tomatoes, dice the avo, drain the chickpeas and corn.',
+    'Toss everything with the crumbled feta and dressing.'],
+  pestoChicken: ['Microwave per packet, ~4-5 min. One meal each.'],
+  smokyBeef: ['Microwave per packet, ~4-5 min. One meal each.'],
+  lemonPepper: ['Microwave per packet, ~4-5 min. One meal each.'],
+  beefRendang: ['Microwave per packet, ~4-5 min. One meal each.'],
+};
+
 // ---------------- OPTIMISER CORE ----------------
 function evaluate(mealIds, tOver) {
   const req = {}; const usedBy = {};
@@ -873,6 +1035,7 @@ function renderMeals() {
       <div class="nm">${r.name}</div>
       <div class="ings">${names.slice(0, 5).join(' · ')}${names.length > 5 ? ' +' + (names.length - 5) : ''}</div>
       ${mult}
+      ${RECIPE_STEPS[r.id] ? `<button class="rbtn" data-r="${r.id}" title="Cooking method" aria-label="Cooking method for ${r.name}">📖</button>` : ''}
     </div>`;
   }).join('');
   const counts = CATS.map(c => {
@@ -882,8 +1045,9 @@ function renderMeals() {
   const totT = [...picked].reduce((s, id) => s + (times[id] || 1), 0);
   const nEx = Object.keys(extras).length;
   $('pickCount').textContent = `${counts.join(' · ') || 'nothing picked'} × ${people} serves${totT > picked.size ? ` · ${totT} cook-ups` : ''}${nEx ? ` · ${nEx} extra${nEx > 1 ? 's' : ''}` : ''}`;
+  document.querySelectorAll('.meal .rbtn').forEach(b => b.onclick = (ev) => { ev.stopPropagation(); openRecipe(b.dataset.r); });
   document.querySelectorAll('.meal').forEach(el => el.onclick = (ev) => {
-    if (ev.target.closest('.mult')) return;   // stepper clicks don't toggle the card
+    if (ev.target.closest('.mult, .rbtn')) return;   // stepper and recipe clicks don't toggle the card
     const id = el.dataset.id;
     if (picked.has(id)) { picked.delete(id); delete times[id]; }
     else picked.add(id);
@@ -1262,6 +1426,28 @@ function renderStoreMode() {
   };
   document.querySelectorAll('.sitem').forEach(el => el.onclick = () => { el.classList.toggle('done'); updateProgress(); });
 }
+function openRecipe(id) {
+  const r = RECIPES.find(x => x.id === id);
+  const steps = RECIPE_STEPS[id];
+  if (!r || !steps) return;
+  const scale = people / BASE_SERVES;
+  $('rcTitle').textContent = `${EMOJI[id] || '🍽️'} ${r.name}`;
+  $('rcSub').textContent = `serves ${people} · quantities scaled to your household`;
+  $('rcBody').innerHTML = `
+    <div class="rc-ings"><b style="font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)">Ingredients</b>
+      <ul style="margin:6px 0 0;padding-left:18px">
+        ${Object.entries(r.ing).map(([k, q]) => {
+          const g = ING[k]; if (!g) return '';
+          const n = q * scale;
+          return `<li>${g.name}: <b>${qty(Math.round(n * 100) / 100, g.unit)}</b></li>`;
+        }).join('')}
+      </ul></div>
+    <ol class="rc-steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>`;
+  $('recipeMode').hidden = false; document.body.style.overflow = 'hidden';
+}
+$('rcClose').onclick = () => { $('recipeMode').hidden = true; document.body.style.overflow = ''; };
+$('recipeMode').onclick = (ev) => { if (ev.target === $('recipeMode')) $('rcClose').onclick(); };
+
 $('btnStore').onclick = () => { renderStoreMode(); $('storeMode').hidden = false; document.body.style.overflow = 'hidden'; };
 $('ovClose').onclick = () => { $('storeMode').hidden = true; document.body.style.overflow = ''; };
 $('storeMode').onclick = (ev) => { if (ev.target === $('storeMode')) $('ovClose').onclick(); };
