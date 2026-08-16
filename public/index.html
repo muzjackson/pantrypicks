@@ -648,7 +648,7 @@ const ALDI_NA = ['curry', 'padThaiKit', 'gyoza', 'pestoMeal', 'smokyMeal', 'lemo
 // Receipt-verified (Aldi Whitfords 03.08.26) + tracker anchors. eggs = per-dozen equivalent of the 18pk @ $7.69;
 // cheese = per-500g equivalent of the 1kg block @ $8.99.
 const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTom:0.95, coconut:2.79,
-  carrots:1.89, onion:0.50, butter:4.19, banana:0.81, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
+  carrots:1.89, onion:0.50, butter:4.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
   couscous:1.99, cornChips:2.39, burritoKit:5.49, kidneyBeans:0.89, coconutCream:1.69, salsa:1.79,
   sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79,
   muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:4.99, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49, chickenSlices:4.49 };
@@ -1344,6 +1344,34 @@ function cheapStore(g) {
   const min = Math.min(...opts.map(o => o[1]));
   return opts.filter(o => o[1] === min).map(o => o[0]).join('/');
 }
+function partnerText() {
+  // Condensed share for the partner: meals by day, bare buy-list, no prices (Muz spec 09.08.26)
+  const { e, out } = exportRows();
+  let txt = `THIS WEEK — ${e.mealSlots} meals for ${people}\n`;
+  const planned = new Set(Object.values(plan));
+  if (Object.keys(plan).length) {
+    for (const d of DAYS) {
+      const slots = CATS.map(c => plan[`${d}|${c.id}`]).filter(Boolean)
+        .map(id => RECIPES.find(r => r.id === id).name);
+      if (slots.length) txt += `${d}: ${slots.join(' · ')}\n`;
+    }
+    const unplanned = RECIPES.filter(r => picked.has(r.id) && !planned.has(r.id))
+      .map(r => r.name + ((times[r.id] || 1) > 1 ? ` ×${times[r.id]}` : ''));
+    if (unplanned.length) txt += `Any day: ${unplanned.join(' · ')}\n`;
+  } else {
+    txt += `Meals: ${RECIPES.filter(r => picked.has(r.id)).map(r => r.name + ((times[r.id] || 1) > 1 ? ` ×${times[r.id]}` : '')).join(', ')}\n`;
+  }
+  txt += `\nTO BUY\n`;
+  let aisle = '';
+  for (const { aisle: a, r } of out) {
+    if (a !== aisle) { aisle = a; txt += `\n${a.toUpperCase()}\n`; }
+    txt += `${r.g.name} — ${r.packs}× ${r.g.packLabel}\n`;
+  }
+  const fromPantry = e.rows.filter(r => r.have).map(r => r.g.name);
+  if (fromPantry.length) txt += `\nAlready have: ${fromPantry.join(', ')}\n`;
+  txt += `\nPantryPicks · https://pantrypicks.app\n`;
+  return txt;
+}
 function listAsText() {
   const { e, out } = exportRows();
   const mealNames = RECIPES.filter(r => picked.has(r.id)).map(r => r.name + ((times[r.id] || 1) > 1 ? ` ×${times[r.id]}` : '')).join(', ');
@@ -1452,7 +1480,7 @@ $('btnStore').onclick = () => { renderStoreMode(); $('storeMode').hidden = false
 $('ovClose').onclick = () => { $('storeMode').hidden = true; document.body.style.overflow = ''; };
 $('storeMode').onclick = (ev) => { if (ev.target === $('storeMode')) $('ovClose').onclick(); };
 $('ovShare').onclick = async () => {
-  const txt = listAsText();
+  const txt = partnerText();
   if (navigator.share) {
     try { await navigator.share({ title: "This week's shop", text: txt }); return; } catch (err) { /* cancelled -> fall through */ }
   }
