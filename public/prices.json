@@ -1,6 +1,6 @@
 {
- "updated": "2026-08-08",
- "source": "GrocerySpy 07.08.26 (banana Aldi) + Grocerize cross-check 08.08.26; prior: Aldi Whitfords receipt 03.08.26 + AU anchor research",
+ "updated": "2026-08-16",
+ "source": "Grocerize 16.08.26 (banana each Woolworths 0.88 / Coles 0.83); staples cross-checked unchanged: eggs 12pk 6.20 both, Weet-Bix 575g 5.00 both, wholemeal bread 700g 3.50 both, rolled oats 750g W 1.60, carrots 1kg C 2.40, Aldi beef mince 500g 9.99; prior: GrocerySpy 07.08.26 + Aldi Whitfords receipt 03.08.26",
  "pipeline": "claude-scheduled-task",
  "prices": {
   "chicken": {
@@ -286,7 +286,7 @@
    "src": "ind"
   },
   "banana": {
-   "w": 0.91,
+   "w": 0.88,
    "c": 0.83,
    "a": 0.81,
    "src": "live"
