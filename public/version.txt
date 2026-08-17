@@ -1,0 +1,3 @@
+commit: bfde681
+build: 2026-08-17 drinks-spreads + receipt-scan
+prices_keys: 98
