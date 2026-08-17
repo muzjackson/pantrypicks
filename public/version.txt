@@ -1,3 +1,4 @@
-commit: bfde681
-build: 2026-08-17 drinks-spreads + receipt-scan
+commit: receipt-trueup-2026-08-17
+build: 2026-08-17 receipt price true-up (Aldi Karrinyup 17.08 + Coles Prospect 10.08)
+prices_updated: 2026-08-17
 prices_keys: 98

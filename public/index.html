@@ -619,7 +619,7 @@ const ING = {
   ptSauce:  { name:'Pad thai sauce',         aisle:'Pantry',         unit:'g',     pack:265,  packLabel:'265g jar',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
   peanutButter:{ name:'Peanut butter',       aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:4.00,  c:4.00,  keeps:true,  src:'ind'  },
   soy:      { name:'Soy sauce',              aisle:'Pantry',         unit:'ml',    pack:250,  packLabel:'250ml',         w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
-  tortillas:{ name:'Tortillas',              aisle:'Pantry',         unit:'pcs',   pack:8,    packLabel:'8 pack',        w:4.20,  c:4.20,  keeps:true,  src:'ind'  },
+  tortillas:{ name:'Tortillas',              aisle:'Pantry',         unit:'pcs',   pack:8,    packLabel:'8 pack',        w:4.20,  c:5.50,  keeps:true,  src:'ind'  },
   beans:    { name:'Black beans',            aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.40,  c:1.40,  keeps:false, src:'ind'  },
   cornChips:{ name:'Corn chips',             aisle:'Pantry',         unit:'g',     pack:230,  packLabel:'230g bag',      w:3.80,  c:3.80,  keeps:true,  src:'ind'  },
   salsa:    { name:'Salsa',                  aisle:'Pantry',         unit:'g',     pack:300,  packLabel:'300g jar',      w:3.20,  c:3.40,  keeps:false, src:'ind'  },
@@ -636,7 +636,7 @@ const ING = {
   lemon:    { name:'Lemon',                  aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.00,  c:1.10,  keeps:true,  src:'ind'  },
   banana:   { name:'Bananas',                aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:0.88,  c:0.83,  keeps:false, src:'live' },
   mushrooms:{ name:'Mushrooms',              aisle:'Fresh Produce',  unit:'g',     pack:200,  packLabel:'200g punnet',   w:3.50,  c:3.80,  keeps:false, src:'ind'  },
-  avocado:  { name:'Avocado',                aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.90,  c:1.80,  keeps:false, src:'ind'  },
+  avocado:  { name:'Avocado',                aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.90,  c:2.50,  keeps:false, src:'ind'  },
   weetbix:  { name:'Weet-Bix',               aisle:'Pantry',         unit:'g',     pack:575,  packLabel:'575g box',      w:5.00,  c:5.00,  keeps:true,  src:'live' },
   cucumber: { name:'Cucumber',               aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.90,  c:1.90,  keeps:false, src:'ind'  },
   couscous: { name:'Couscous',               aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g box',      w:2.60,  c:2.80,  keeps:true,  src:'ind'  },
@@ -676,9 +676,9 @@ const ING = {
   partyMix: { name:'Party mix lollies',          aisle:'Snacks',         unit:'g',     pack:520,  packLabel:'520g bag',      w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
   chipsStacked:{ name:'Stacked chips',           aisle:'Snacks',         unit:'g',     pack:160,  packLabel:'160g tube',     w:2.50,  c:2.60,  keeps:true,  src:'ind'  },
   mandarins:{ name:'Mandarins',                  aisle:'Snacks',         unit:'g',     pack:1000, packLabel:'~1kg',          w:5.90,  c:5.90,  keeps:false, src:'ind'  },
-  coffeePods:{ name:'Coffee pods',               aisle:'Drinks, Spreads & Sauces', unit:'each', pack:1, packLabel:'30-pod box', w:19.00, c:20.00, a:12.99, keeps:true, src:'ind' },
-  sodaWater:{ name:'Soda water',                 aisle:'Drinks, Spreads & Sauces', unit:'each', pack:1, packLabel:'1.25L bottle', w:1.50, c:1.50, a:0.85, keeps:true, src:'ind' },
-  washingLiquid:{ name:'Washing liquid',         aisle:'Household',      unit:'each',  pack:1,    packLabel:'1L bottle',     w:5.50,  c:5.50,  a:3.99, keeps:true,  src:'ind'  },
+  coffeePods:{ name:'Coffee pods',               aisle:'Drinks, Spreads & Sauces', unit:'each', pack:1, packLabel:'10-pod pack', w:7.00, c:7.00, keeps:true, src:'ind' },
+  sodaWater:{ name:'Soda water',                 aisle:'Drinks, Spreads & Sauces', unit:'each', pack:1, packLabel:'1.25L bottle', w:1.50, c:1.50, keeps:true, src:'ind' },
+  washingLiquid:{ name:'Washing liquid',         aisle:'Household',      unit:'each',  pack:1,    packLabel:'1L bottle',     w:5.50,  c:5.50,  keeps:true,  src:'ind'  },
   tissues:  { name:'Facial tissues',             aisle:'Household',      unit:'each',  pack:1,    packLabel:'224pk box',     w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
   toiletPaper:{ name:'Toilet paper',             aisle:'Household',      unit:'each',  pack:1,    packLabel:'12 pack',       w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
   shampoo:  { name:'Shampoo',                    aisle:'Household',      unit:'each',  pack:1,    packLabel:'bottle',        w:4.50,  c:4.50,  keeps:true,  src:'ind'  },
@@ -696,10 +696,12 @@ const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTo
   carrots:1.89, onion:0.50, butter:4.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
   couscous:1.99, cornChips:2.39, burritoKit:5.49, kidneyBeans:0.89, coconutCream:1.69, salsa:1.79,
   sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79,
-  muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:4.99, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49, chickenSlices:4.49 };
+  muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:3.49, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49, chickenSlices:6.49,
+  sodaWater:1.09, rolls:2.69, potatoes:4.99, broccoli:1.87, coffeePods:3.25, washingLiquid:3.99 };
 const RECEIPT_LIVE = ['mince','eggs','cannedTom','couscous','cornChips','burritoKit','kidneyBeans','coconutCream',
   'salsa','sourCream','guac','meatballs','slawKit','cheese','cherryTom','avocado','banana','onion',
-  'muesliBars','partyMix','chipsStacked','mandarins','tissues','toiletPaper','shampoo','bodyWash','chickenSlices'];
+  'muesliBars','partyMix','chipsStacked','mandarins','tissues','toiletPaper','shampoo','bodyWash','chickenSlices',
+  'sodaWater','rolls','potatoes','broccoli','coffeePods','tortillas'];
 for (const [k, g] of Object.entries(ING)) {
   if (ALDI_NA.includes(k)) g.a = null;
   else if (ALDI_ANCHOR[k] != null) g.a = ALDI_ANCHOR[k];
