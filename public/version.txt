@@ -1,4 +1,4 @@
-commit: receipt-trueup-2026-08-17
-build: 2026-08-17 receipt price true-up (Aldi Karrinyup 17.08 + Coles Prospect 10.08)
+commit: scan-totals-fix-2026-08-17
+build: 2026-08-17 receipt scan v2: correct totals (stated total, discounts, qty unit prices, per-kg), camelCase OCR splitting, synonym overhaul
 prices_updated: 2026-08-17
 prices_keys: 98

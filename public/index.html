@@ -1264,10 +1264,9 @@ function renderList(e) {
 // Grows over time via synLearned (assignments made on the confirm screen are remembered).
 const RECEIPT_SYNONYMS = {
   'DRUMSTICKS': 'chicken', 'DRUMSTK': 'chicken', 'CHICKEN DRUMSTICK': 'chicken',
-  'CHICKEN BREAST': 'chickenBreast', 'CHKN BREAST': 'chickenBreast', 'BREAST FILLETS': 'chickenBreast',
-  'CHICKEN THIGH': 'chickenThigh', 'THIGH FILLETS': 'chickenThigh',
-  'BEEF MINCE': 'mince', 'MINCE 5 STAR': 'mince', 'HEART SMART MINCE': 'mince', 'REG BEEF MINCE': 'mince',
-  'CHICKEN SLICES': 'chickenSlices', 'CHKN SLICES': 'chickenSlices', 'SLICED CHICKEN': 'chickenSlices',
+  'CHICKEN BREAST': 'chicken', 'CHKN BREAST': 'chicken', 'BREAST FILLETS': 'chicken',
+  'BEEF MINCE': 'mince', 'BEEF MNCE': 'mince', 'MINCE 5 STAR': 'mince', '5 STAR BEEF': 'mince', 'HEART SMART MINCE': 'mince', 'REG BEEF MINCE': 'mince',
+  'CHICKEN SLICES': 'chickenSlices', 'CHKN SLICES': 'chickenSlices', 'SLICED CHICKEN': 'chickenSlices', 'CHKN SLC': 'chickenSlices', 'BERG CHKN': 'chickenSlices',
   'MILK FULL CREAM': 'milk', 'MLK FC': 'milk', 'FULL CREAM MILK': 'milk', 'LITE MILK': 'milk',
   'FREE RANGE EGGS': 'eggs', 'EGGS 12': 'eggs', 'CAGE FREE EGGS': 'eggs',
   'TASTY CHEESE': 'cheese', 'CHEESE BLOCK': 'cheese', 'SHREDDED TASTY': 'cheese',
@@ -1276,8 +1275,8 @@ const RECEIPT_SYNONYMS = {
   'ROLLED OATS': 'oats', 'OATS TRADITIONAL': 'oats',
   'JASMINE RICE': 'rice', 'RICE JASMINE': 'rice', 'LONG GRAIN RICE': 'rice',
   'SPAGHETTI': 'spaghetti', 'SPAG': 'spaghetti',
-  'CANNED TOMATO': 'cannedTom', 'DICED TOMATOES': 'cannedTom', 'TOMATOES DICED': 'cannedTom', 'CRUSHED TOMATOES': 'cannedTom',
-  'COCONUT MILK': 'coconut', 'COCONUT CREAM': 'coconut',
+  'CANNED TOMATO': 'cannedTom', 'DICED TOMATO': 'cannedTom', 'DICED TOMATOES': 'cannedTom', 'DICED TOMS': 'cannedTom', 'TOMATOES DICED': 'cannedTom', 'CRUSHED TOMATOES': 'cannedTom',
+  'COCONUT MILK': 'coconut', 'COCONUT CREAM': 'coconutCream',
   'BANANA': 'banana', 'BANANAS': 'banana', 'CAVENDISH': 'banana',
   'CARROT': 'carrots', 'CARROTS': 'carrots',
   'BROWN ONION': 'onion', 'ONIONS BROWN': 'onion',
@@ -1298,14 +1297,19 @@ const RECEIPT_SYNONYMS = {
   'PEANUT BUTTER': 'peanutButter', 'PNUT BUTTER': 'peanutButter',
   'KIDNEY BEANS': 'kidneyBeans', 'RED KIDNEY BEANS': 'kidneyBeans',
   'CHICKPEAS': 'chickpeas', 'CHICK PEAS': 'chickpeas',
-  'TORTILLA': 'tortillas', 'TORTILLAS': 'tortillas', 'WRAPS': 'wraps', 'WRAP WHOLEMEAL': 'wraps',
+  'TORTILLA': 'tortillas', 'TORTILLAS': 'tortillas', 'WRAPS': 'tortillas', 'MISSION WRAPS': 'tortillas', 'WRAP WHOLEMEAL': 'tortillas',
   'FROZEN PEAS': 'peas', 'PEAS FROZEN': 'peas',
   'STIR FRY VEG': 'stirfryVeg', 'STIRFRY VEGETABLES': 'stirfryVeg',
   'SALMON': 'salmon', 'SALMON PORTIONS': 'salmon', 'ATLANTIC SALMON': 'salmon',
   'GYOZA': 'gyoza', 'DUMPLINGS': 'gyoza',
-  'COFFEE PODS': 'coffeePods', 'COFFEE CAPSULES': 'coffeePods', 'EXPRESSI': 'coffeePods', 'NESPRESSO': 'coffeePods',
-  'SODA WATER': 'sodaWater', 'SPARKLING WATER': 'sodaWater', 'MINERAL WATER': 'sodaWater',
-  'MARGARINE': 'butter', 'MARG SPREAD': 'butter', 'CANOLA SPREAD': 'butter',
+  'MEX KIT': 'burritoKit', 'TOMATO GRAPE': 'cherryTom', 'GRAPE TOMATO': 'cherryTom',
+  'CHS BLOCK': 'cheese', 'CREAM SOUR': 'sourCream', 'SOUR CREAM': 'sourCream',
+  'FACIAL TIS': 'tissues', 'NUT BTTR': 'muesliBars', 'COUS COUS': 'couscous',
+  'BARN LAID EGG': 'eggs', 'WAGYU MEATBALLS': 'meatballs', 'SAL KIT': 'slawKit', 'CRUNCHY SAL': 'slawKit',
+  'WHITE ROLLS': 'rolls', 'GUACAMOLE': 'guac', 'SALSA DIP': 'salsa', 'CORN CHIPS': 'cornChips',
+  'COFFEE PODS': 'coffeePods', 'COFFEE CAPSULES': 'coffeePods', 'EXPRESSI': 'coffeePods', 'NESPRESSO': 'coffeePods', 'LUNGO': 'coffeePods',
+  'SODA WATER': 'sodaWater', 'SODA WTR': 'sodaWater', 'SPARKLING WATER': 'sodaWater', 'MINERAL WATER': 'sodaWater',
+  'MARGARINE': 'butter', 'MARG': 'butter', 'MARG SPREAD': 'butter', 'CANOLA SPREAD': 'butter', 'MARG OLIVE': 'butter',
   'LAUNDRY LIQUID': 'washingLiquid', 'WASHING LIQUID': 'washingLiquid', 'DISHWASHING LIQUID': 'washingLiquid', 'DISH LIQUID': 'washingLiquid',
 };
 
@@ -1313,10 +1317,14 @@ const RECEIPT_SYNONYMS = {
 const RC_STOPWORDS = new Set(['THE','A','OF','WW','COLES','ALDI','WOOLWORTHS','ESSENTIALS','SMART','BUY','VALUE','AUSSIE','AUST','AUSTRALIAN','FRESH','PACK','PKT','EACH','EA','KG','G','GM','ML','L','LT','X','PER','ODD','BUNCH','PREPACKED','LOOSE','GREAT']);
 
 // Lines that are receipt furniture, not purchased items.
-const RC_JUNK = /(TOTAL|SUBTOTAL|BALANCE|GST|TAX INVOICE|ABN|EFT|EFTPOS|CASH|CREDIT|DEBIT|VISA|MASTERCARD|CHANGE|ROUNDING|LOYALTY|REWARDS|EVERYDAY|FLYBUYS|POINTS|SAVINGS|YOU SAVED|SPECIAL|PROMOTION|DISCOUNT|REFUND|VOID|OPENING|CLOSING|STORE|PH:|PHONE|WWW\.|RECEIPT|REGISTER|OPERATOR|CASHIER|MEMBER|CARD|AUTH|APPROVED|ACCOUNT|SURCHARGE|BAG FEE|ITEMS?\s*$)/;
+const RC_JUNK = /(TOTAL|SUBTOTAL|BALANCE|GST|TAX INVOICE|ABN|EFT|EFTPOS|CASH\b|CREDIT|DEBIT|VISA|MASTERCARD|CHANGE|ROUNDING|LOYALTY|REWARDS|EVERYDAY|FLYBUYS|POINTS|SAVINGS|YOU SAVED|SPECIAL|PROMOTION|DISCOUNT|REFUND|VOID|OPENING|CLOSING|STORE|PH:|PHONE|WWW\.|RECEIPT|REGISTER|OPERATOR|CASHIER|MEMBER|CARD|AUTH|APPROVED|ACCOUNT|SURCHARGE|BAG FEE|ITEMS?\s*$)/;
 
 function rcNorm(s) {
-  return String(s).toUpperCase().replace(/[^A-Z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return String(s)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-z])/g, '$1 $2')
+    .toUpperCase().replace(/[^A-Z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function rcDetectStore(text) {
@@ -1329,24 +1337,48 @@ function rcDetectStore(text) {
 
 // Extract candidate item lines: description then a price at end of line.
 // Handles Woolworths qty lines ("2 @ $3.50"), Coles special markers, negative (discount) lines.
+// Returns { items, adjustments, statedTotal }.
+//  items: [{ raw, price (per pack/unit, the value applied), lineTotal (spend on that line), qty?, perKg? }]
+//  adjustments: sum of negative lines (multibuy promos, member savings, cash rounding) so the
+//    receipts total matches what was actually paid
+//  statedTotal: the receipt's own printed TOTAL when readable (used as the total in preference)
 function rcParseLines(text) {
+  const lines = text.split('\n').map(l => l.trim());
   const items = [];
-  for (const rawLine of text.split('\n')) {
-    const line = rawLine.trim();
-    if (line.length < 6) continue;
+  let adjustments = 0, statedTotal = null;
+  const r2 = v => Math.round(v * 100) / 100;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.length < 4) continue;
     const N = rcNorm(line);
+    // the receipt's own total line: "Total (INCL GST) $95.82", "Total for 13 items: $82.85", "TOTAL AUD $73.10"
+    if (statedTotal == null && /(^|\s)(TOTAL|AMOUNT)(\s|$)/.test(N) && !/SUBTOTAL|INCLUDES/.test(N)) {
+      const tm = line.match(/\$?\s*(\d{1,4}[.,]\d{2})\s*$/);
+      if (tm) { statedTotal = parseFloat(tm[1].replace(',', '.')); continue; }
+    }
+    if (/^\d+\s*@|^QTY\s+\d+|KG NET/.test(N)) continue;   // qty and weight sub-lines: read via lookahead below
+    if (/^[\d\s./:-]+$/.test(N)) continue;                 // dates, times, barcodes
+    // negative amounts are real reductions in what was paid (multibuy promos, rounding),
+    // whether or not the line also carries junk keywords
+    const neg = line.match(/-\s*\$?\s*(\d{1,3}[.,]\d{2})\s*[A-Z#*%]?$/);
+    if (neg) { adjustments -= parseFloat(neg[1].replace(',', '.')); continue; }
     if (RC_JUNK.test(N)) continue;
-    if (/^\d+\s*@/.test(N)) continue;              // unit-price sub-line
-    if (/^[\d\s./:-]+$/.test(N)) continue;          // dates, times, barcodes
-    const m = line.match(/^(.*?)[\s.]*\$?\s*(-?\d{1,3}[.,]\d{2})\s*[A-Z#*%]?$/);
+    const m = line.match(/^(.*?)[\s.]*\$?\s*(\d{1,3}[.,]\d{2})\s*[A-Z#*%]?$/);
     if (!m) continue;
     const desc = m[1].trim();
-    const price = parseFloat(m[2].replace(',', '.'));
+    const lineTotal = parseFloat(m[2].replace(',', '.'));
     if (!desc || rcNorm(desc).length < 3) continue;
-    if (!(price >= 0.2 && price <= 150)) continue;  // discards negatives (discounts) and junk
-    items.push({ raw: desc, price: Math.round(price * 100) / 100 });
+    if (!(lineTotal >= 0.2 && lineTotal <= 500)) continue;
+    const it = { raw: desc, price: r2(lineTotal), lineTotal: r2(lineTotal) };
+    // lookahead: "Qty 2 @ $6.49 ea." / "3 @ $8.20 EACH" -> unit price; "0.709kg Net @ 4.49 $/kg" -> rate
+    const next = lines[i + 1] || '';
+    const qm = next.match(/(?:QTY\s*)?(\d+)\s*@\s*\$?\s*(\d+[.,]\d{2})/i);
+    const km = next.match(/([\d.]+)\s*KG\s*NET\s*@\s*\$?\s*(\d+[.,]\d{2})/i);
+    if (km) { it.perKg = parseFloat(km[2].replace(',', '.')); }
+    else if (qm) { it.qty = parseInt(qm[1], 10); it.price = r2(parseFloat(qm[2].replace(',', '.'))); }
+    items.push(it);
   }
-  return items;
+  return { items, adjustments: r2(adjustments), statedTotal };
 }
 
 // Match one receipt description to an ingredient key.
@@ -1431,10 +1463,18 @@ async function rcProcessQueue(files) {
       const { data } = await rcWorker.recognize(canvas);
       const text = data.text || '';
       q.store = rcDetectStore(text);
-      q.items = rcParseLines(text).map(it => {
+      const parsed = rcParseLines(text);
+      q.adjust = parsed.adjustments; q.stated = parsed.statedTotal;
+      q.items = parsed.items.map(it => {
         const m = rcMatch(it.raw, synLearned);
-        return { raw: it.raw, price: it.price, key: m.key, sel: m.key,
-                 score: m.score, accepted: m.score >= RC_CONFIDENT };
+        let price = it.price, ok = m.score >= RC_CONFIDENT;
+        if (it.perKg != null && m.key) {
+          const g = ING[m.key];
+          if (g.unit === 'g' && g.pack) price = Math.round(it.perKg * g.pack / 10) / 100;  // rate x pack, to the item's pack basis
+          else ok = false;   // weighed line vs per-each item: needs a human eye
+        }
+        return { raw: it.raw, price, lineTotal: it.lineTotal, qty: it.qty, perKg: it.perKg,
+                 key: m.key, sel: m.key, score: m.score, accepted: ok };
       });
       q.status = q.store ? 'done' : 'needstore';
     } catch (err) { q.status = 'error'; }
@@ -1483,11 +1523,11 @@ function rcRenderReview() {
           </select>
           <div class="rcpraw">"${it.raw}"${it.key && it.score < RC_CONFIDENT ? ' · <i>best guess, please check</i>' : ''}${!it.key ? ' · <i>no match found</i>' : ''}</div>
         </div>
-        <div class="rcpprice"><b>${fmt(it.price)}</b><div>${dTxt}</div></div>
+        <div class="rcpprice"><b>${fmt(it.price)}</b>${it.qty ? `<div class="hint">${it.qty} × on receipt (${fmt(it.lineTotal)})</div>` : ''}${it.perKg != null ? `<div class="hint">${fmt(it.perKg)}/kg weighed</div>` : ''}<div>${dTxt}</div></div>
       </div>`;
     });
   });
-  const actual = ready.reduce((t, q) => t + q.items.reduce((s, it) => s + it.price, 0), 0);
+  const actual = ready.reduce((t, q) => t + (q.stated != null ? q.stated : q.items.reduce((s, it) => s + (it.lineTotal != null ? it.lineTotal : it.price), 0) + (q.adjust || 0)), 0);
   const planned = evaluate([...picked]).totSplit;
   html += `<div class="rcpvar">Receipts total <b>${fmt(actual)}</b> vs planned <b>${fmt(planned)}</b> · variance <b>${planned > 0 ? (100 * (actual - planned) / planned).toFixed(1) : '0.0'}%</b><br><span class="hint">Gate check: 3 straight weeks inside 10% and the plan is proven against reality.</span></div>`;
   $('rcpReview').innerHTML = html;
@@ -1508,8 +1548,8 @@ function rcApply() {
   const ready = rcQueue.filter(q => q.status === 'done' && q.store);
   let applied = 0, learned = 0, actual = 0;
   for (const q of ready) {
+    actual += q.stated != null ? q.stated : q.items.reduce((s, it) => s + (it.lineTotal != null ? it.lineTotal : it.price), 0) + (q.adjust || 0);
     for (const it of q.items) {
-      actual += it.price;
       if (!it.accepted || !it.sel || !ING[it.sel]) continue;
       ING[it.sel][q.store] = it.price;
       (priceEdits[it.sel] = priceEdits[it.sel] || {})[q.store] = it.price;   // receipt-verified: outranks remote refresh
