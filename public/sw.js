@@ -1,5 +1,5 @@
 // Super Shopper service worker: cache-first app shell for offline use in-store.
-const CACHE = 'pantrypicks-v2';
+const CACHE = 'pantrypicks-v3';
 const ASSETS = ['.', 'index.html', 'manifest.json', 'prices.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {

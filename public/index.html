@@ -421,6 +421,24 @@
     transition: all 0.12s ease;
   }
   .xbtn:hover { border-color: var(--series-1); color: var(--series-1); }
+  /* receipt scanning */
+  .rcpqueue { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 8px; }
+  .rcpthumb { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; min-width: 130px; background: var(--surface-1); }
+  .rcpthumb.processing { border-color: var(--series-1); }
+  .rcpthumb.error { border-color: #d03b3b; }
+  .rcpn { font-weight: 650; font-size: 13px; }
+  .rcps { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .rcpstores { display: flex; gap: 6px; margin-top: 6px; }
+  .rcpgroup { padding: 10px 8px 4px; font-size: 13px; border-top: 1px solid var(--grid); margin-top: 6px; }
+  .rcprow { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-bottom: 1px solid var(--grid); }
+  .rcprow.off { opacity: 0.45; }
+  .rcpmain { flex: 1; min-width: 0; }
+  .rcpsel { width: 100%; max-width: 320px; background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--border); border-radius: 8px; padding: 5px 8px; font-size: 13px; }
+  .rcpraw { font-size: 11px; color: var(--muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rcpprice { text-align: right; font-size: 13px; min-width: 92px; }
+  .rcpprice div { font-size: 11px; }
+  .rcpup { color: #d03b3b; } .rcpdown { color: var(--success-text); } .rcpsame { color: var(--muted); }
+  .rcpvar { margin: 12px 8px 6px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-1); font-size: 13px; }
   button:focus-visible, .tab:focus-visible, select:focus-visible, input:focus-visible {
     outline: 2px solid var(--series-1); outline-offset: 1px;
   }
@@ -498,11 +516,13 @@
       <span class="hspace"></span>
       <span style="display:flex;gap:8px;align-items:center">
         <span id="copyFb" style="font-size:12px;color:var(--success-text);font-weight:650;visibility:hidden">✓ copied</span>
+        <button id="btnScan" class="xbtn">📷 Scan receipts</button>
         <button id="btnStore" class="xbtn xbtn-primary">🛒 Store mode</button>
         <button id="btnCopy" class="xbtn">Copy list</button>
         <button id="btnCsv" class="xbtn">Download CSV</button>
       </span></h2>
     <div class="tablewrap"><table id="list"></table></div>
+    <input type="file" id="rcptFiles" accept="image/*" multiple hidden>
   </section>
 
   <div id="recipeMode" class="overlay" hidden>
@@ -531,6 +551,27 @@
       <div class="ovfoot">
         <button class="xbtn" id="ovShare">Share with partner</button>
         <span id="ovFb" style="font-size:12px;color:var(--success-text);font-weight:650;visibility:hidden">✓ copied — paste anywhere</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="scanMode" class="overlay" hidden>
+    <div class="ovpanel">
+      <div class="ovhead">
+        <div>
+          <div class="ovtitle">📷 Receipt scan</div>
+          <div class="ovsub">Reads on your phone only · photos are never uploaded or kept · each receipt updates its own store's prices</div>
+        </div>
+        <button class="xbtn" id="rcpClose">Cancel</button>
+      </div>
+      <div class="ovbody">
+        <div id="rcpStatus" class="hint" style="padding:6px 8px"></div>
+        <div id="rcpQueue" class="rcpqueue"></div>
+        <div id="rcpReview"></div>
+      </div>
+      <div class="ovfoot">
+        <button class="xbtn xbtn-primary" id="rcpApply" disabled>Apply checked prices</button>
+        <span class="hint">Unchecked lines are ignored · corrections you make are remembered for next time</span>
       </div>
     </div>
   </div>
@@ -715,6 +756,8 @@ let times = {};   // meal id -> cook-ups per week (default 1)
 let pantryHave = new Set();   // ingredient keys ticked as "already in the pantry"
 let skipped = new Set();      // ingredient keys removed from this week's list (any item, incl. perishables)
 let priceEdits = {};   // k -> {w?,c?,a?} ONLY prices the user explicitly changed (these outrank remote updates)
+let synLearned = {};   // normalised receipt text -> ingredient key, learned from confirm-screen corrections
+let varianceLog = [];  // weekly receipt true-ups: {date, planned, actual} (Gate 1 evidence, capped at 26)
 let remotePricesDate = '';   // set when prices.json is fetched from the host
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 let plan = {};   // "day|cat" -> mealId (week planner assignments)
@@ -1203,6 +1246,276 @@ function renderList(e) {
   });
 }
 
+// ---------------- RECEIPT SCANNING ----------------
+// Photograph the week's receipts; OCR on-device (Tesseract.js, lazy-loaded, cached by the
+// service worker after first use); each receipt updates ONLY its own store's prices, via the
+// same priceEdits mechanism as a manual edit (so receipt-verified prices outrank the daily
+// remote refresh). Photos are never uploaded and never persisted.
+
+// Receipt-token synonyms: normalised receipt text fragment -> ingredient key.
+// Grows over time via synLearned (assignments made on the confirm screen are remembered).
+const RECEIPT_SYNONYMS = {
+  'DRUMSTICKS': 'chicken', 'DRUMSTK': 'chicken', 'CHICKEN DRUMSTICK': 'chicken',
+  'CHICKEN BREAST': 'chickenBreast', 'CHKN BREAST': 'chickenBreast', 'BREAST FILLETS': 'chickenBreast',
+  'CHICKEN THIGH': 'chickenThigh', 'THIGH FILLETS': 'chickenThigh',
+  'BEEF MINCE': 'mince', 'MINCE 5 STAR': 'mince', 'HEART SMART MINCE': 'mince', 'REG BEEF MINCE': 'mince',
+  'CHICKEN SLICES': 'chickenSlices', 'CHKN SLICES': 'chickenSlices', 'SLICED CHICKEN': 'chickenSlices',
+  'MILK FULL CREAM': 'milk', 'MLK FC': 'milk', 'FULL CREAM MILK': 'milk', 'LITE MILK': 'milk',
+  'FREE RANGE EGGS': 'eggs', 'EGGS 12': 'eggs', 'CAGE FREE EGGS': 'eggs',
+  'TASTY CHEESE': 'cheese', 'CHEESE BLOCK': 'cheese', 'SHREDDED TASTY': 'cheese',
+  'WHOLEMEAL BREAD': 'bread', 'BREAD WHOLEMEAL': 'bread', 'WMEAL BREAD': 'bread',
+  'WEET BIX': 'weetbix', 'WEETBIX': 'weetbix',
+  'ROLLED OATS': 'oats', 'OATS TRADITIONAL': 'oats',
+  'JASMINE RICE': 'rice', 'RICE JASMINE': 'rice', 'LONG GRAIN RICE': 'rice',
+  'SPAGHETTI': 'spaghetti', 'SPAG': 'spaghetti',
+  'CANNED TOMATO': 'cannedTom', 'DICED TOMATOES': 'cannedTom', 'TOMATOES DICED': 'cannedTom', 'CRUSHED TOMATOES': 'cannedTom',
+  'COCONUT MILK': 'coconut', 'COCONUT CREAM': 'coconut',
+  'BANANA': 'banana', 'BANANAS': 'banana', 'CAVENDISH': 'banana',
+  'CARROT': 'carrots', 'CARROTS': 'carrots',
+  'BROWN ONION': 'onion', 'ONIONS BROWN': 'onion',
+  'POTATO BRUSHED': 'potatoes', 'WASHED POTATOES': 'potatoes', 'POTATOES': 'potatoes',
+  'CAPSICUM': 'capsicum', 'CAPS RED': 'capsicum',
+  'BROCCOLI': 'broccoli', 'BROC': 'broccoli',
+  'BABY SPINACH': 'spinach', 'SPINACH': 'spinach',
+  'GARLIC': 'garlic', 'GINGER': 'ginger',
+  'CORIANDER': 'coriander', 'CORIANDER BUNCH': 'coriander',
+  'CUCUMBER': 'cucumber', 'LEBANESE CUCUMBER': 'cucumber',
+  'TOMATOES': 'tomatoes', 'TOMATO TRUSS': 'tomatoes', 'ROMA TOMATO': 'tomatoes',
+  'AVOCADO': 'avocado', 'AVO': 'avocado', 'HASS AVOCADO': 'avocado',
+  'LEMON': 'lemon', 'LEMONS': 'lemon', 'LIME': 'lime', 'LIMES': 'lime',
+  'GREEK YOGHURT': 'yoghurt', 'YOGHURT GREEK': 'yoghurt', 'NATURAL YOGHURT': 'yoghurt',
+  'BUTTER': 'butter', 'BUTTER SALTED': 'butter',
+  'OLIVE OIL': 'oliveOil', 'EV OLIVE OIL': 'oliveOil', 'EVOO': 'oliveOil',
+  'SOY SAUCE': 'soy', 'SOY SCE': 'soy',
+  'PEANUT BUTTER': 'peanutButter', 'PNUT BUTTER': 'peanutButter',
+  'KIDNEY BEANS': 'kidneyBeans', 'RED KIDNEY BEANS': 'kidneyBeans',
+  'CHICKPEAS': 'chickpeas', 'CHICK PEAS': 'chickpeas',
+  'TORTILLA': 'tortillas', 'TORTILLAS': 'tortillas', 'WRAPS': 'wraps', 'WRAP WHOLEMEAL': 'wraps',
+  'FROZEN PEAS': 'peas', 'PEAS FROZEN': 'peas',
+  'STIR FRY VEG': 'stirfryVeg', 'STIRFRY VEGETABLES': 'stirfryVeg',
+  'SALMON': 'salmon', 'SALMON PORTIONS': 'salmon', 'ATLANTIC SALMON': 'salmon',
+  'GYOZA': 'gyoza', 'DUMPLINGS': 'gyoza',
+};
+
+// Words on receipts that carry no matching signal (brands, sizes, filler).
+const RC_STOPWORDS = new Set(['THE','A','OF','WW','COLES','ALDI','WOOLWORTHS','ESSENTIALS','SMART','BUY','VALUE','AUSSIE','AUST','AUSTRALIAN','FRESH','PACK','PKT','EACH','EA','KG','G','GM','ML','L','LT','X','PER','ODD','BUNCH','PREPACKED','LOOSE','GREAT']);
+
+// Lines that are receipt furniture, not purchased items.
+const RC_JUNK = /(TOTAL|SUBTOTAL|BALANCE|GST|TAX INVOICE|ABN|EFT|EFTPOS|CASH|CREDIT|DEBIT|VISA|MASTERCARD|CHANGE|ROUNDING|LOYALTY|REWARDS|EVERYDAY|FLYBUYS|POINTS|SAVINGS|YOU SAVED|SPECIAL|PROMOTION|DISCOUNT|REFUND|VOID|OPENING|CLOSING|STORE|PH:|PHONE|WWW\.|RECEIPT|REGISTER|OPERATOR|CASHIER|MEMBER|CARD|AUTH|APPROVED|ACCOUNT|SURCHARGE|BAG FEE|ITEMS?\s*$)/;
+
+function rcNorm(s) {
+  return String(s).toUpperCase().replace(/[^A-Z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function rcDetectStore(text) {
+  const head = rcNorm(text.split('\n').slice(0, 8).join(' '));
+  if (/WOOLWORTHS|WOOLIES/.test(head)) return 'w';
+  if (/\bCOLES\b/.test(head)) return 'c';
+  if (/\bALDI\b/.test(head)) return 'a';
+  return null;
+}
+
+// Extract candidate item lines: description then a price at end of line.
+// Handles Woolworths qty lines ("2 @ $3.50"), Coles special markers, negative (discount) lines.
+function rcParseLines(text) {
+  const items = [];
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.trim();
+    if (line.length < 6) continue;
+    const N = rcNorm(line);
+    if (RC_JUNK.test(N)) continue;
+    if (/^\d+\s*@/.test(N)) continue;              // unit-price sub-line
+    if (/^[\d\s./:-]+$/.test(N)) continue;          // dates, times, barcodes
+    const m = line.match(/^(.*?)[\s.]*\$?\s*(-?\d{1,3}[.,]\d{2})\s*[A-Z#*%]?$/);
+    if (!m) continue;
+    const desc = m[1].trim();
+    const price = parseFloat(m[2].replace(',', '.'));
+    if (!desc || rcNorm(desc).length < 3) continue;
+    if (!(price >= 0.2 && price <= 150)) continue;  // discards negatives (discounts) and junk
+    items.push({ raw: desc, price: Math.round(price * 100) / 100 });
+  }
+  return items;
+}
+
+// Match one receipt description to an ingredient key.
+// Order: learned assignments, then the synonym dictionary, then fuzzy token overlap
+// against ingredient names. Returns {key, score} or {key:null, score:0}.
+function rcMatch(raw, learned) {
+  const N = rcNorm(raw);
+  if (learned && learned[N] && ING[learned[N]]) return { key: learned[N], score: 1 };
+  // synonym phrase containment (longest phrase wins)
+  let best = null;
+  for (const [phrase, key] of Object.entries(RECEIPT_SYNONYMS)) {
+    if (!ING[key]) continue;
+    if (N.includes(phrase) && (!best || phrase.length > best.len)) best = { key, len: phrase.length };
+  }
+  if (best) return { key: best.key, score: 0.95 };
+  // fuzzy: coverage of the ingredient's name tokens by the receipt tokens (prefix-tolerant)
+  const rToks = N.split(' ').filter(t => t.length >= 3 && !RC_STOPWORDS.has(t) && !/^\d+$/.test(t));
+  if (!rToks.length) return { key: null, score: 0 };
+  let top = { key: null, score: 0 };
+  for (const [k, g] of Object.entries(ING)) {
+    const nToks = rcNorm(g.name).split(' ').filter(t => t.length >= 3 && !RC_STOPWORDS.has(t));
+    if (!nToks.length) continue;
+    let hit = 0;
+    for (const nt of nToks) {
+      if (rToks.some(rt => rt === nt || (rt.length >= 4 && nt.startsWith(rt)) || (nt.length >= 4 && rt.startsWith(nt)))) hit++;
+    }
+    const score = hit / nToks.length - (rToks.length > nToks.length + 3 ? 0.1 : 0);
+    if (score > top.score) top = { key: k, score };
+  }
+  return top.score >= 0.45 ? top : { key: null, score: top.score };
+}
+
+const RC_CONFIDENT = 0.8;
+
+// ---- scan session state (in-memory only; photos are discarded after OCR) ----
+let rcQueue = [];        // [{name, status, store, items:[{raw, price, key, score, accepted, sel}]}]
+let rcWorker = null;
+
+function rcEnsureTesseract() {
+  if (window.Tesseract) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('OCR library failed to load. Check your connection and try again.'));
+    document.head.appendChild(s);
+  });
+}
+
+// Downscale + greyscale + contrast stretch: the single biggest accuracy lift on thermal paper.
+async function rcPreprocess(file) {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 1500 / bmp.width);
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(bmp.width * scale); cv.height = Math.round(bmp.height * scale);
+  const ctx = cv.getContext('2d');
+  ctx.drawImage(bmp, 0, 0, cv.width, cv.height);
+  bmp.close && bmp.close();
+  const img = ctx.getImageData(0, 0, cv.width, cv.height);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    let v = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+    v = v < 150 ? v * 0.55 : Math.min(255, v * 1.25);   // darken ink, bleach paper
+    d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  ctx.putImageData(img, 0, 0);
+  return cv;
+}
+
+async function rcProcessQueue(files) {
+  try { await rcEnsureTesseract(); }
+  catch (err) { $('rcpStatus').textContent = err.message; return; }
+  if (!rcWorker) {
+    $('rcpStatus').textContent = 'Loading OCR engine (first use only)…';
+    rcWorker = await Tesseract.createWorker('eng');
+  }
+  for (let i = 0; i < rcQueue.length; i++) {
+    const q = rcQueue[i];
+    q.status = 'processing'; rcRenderQueue();
+    $('rcpStatus').textContent = `Reading receipt ${i + 1} of ${rcQueue.length}…`;
+    try {
+      const canvas = await rcPreprocess(files[i]);
+      const { data } = await rcWorker.recognize(canvas);
+      const text = data.text || '';
+      q.store = rcDetectStore(text);
+      q.items = rcParseLines(text).map(it => {
+        const m = rcMatch(it.raw, synLearned);
+        return { raw: it.raw, price: it.price, key: m.key, sel: m.key,
+                 score: m.score, accepted: m.score >= RC_CONFIDENT };
+      });
+      q.status = q.store ? 'done' : 'needstore';
+    } catch (err) { q.status = 'error'; }
+    rcRenderQueue();
+  }
+  $('rcpStatus').textContent = '';
+  rcRenderReview();
+}
+
+function rcRenderQueue() {
+  $('rcpQueue').innerHTML = rcQueue.map((q, i) => {
+    const lab = { pending: '⏳ queued', processing: '🔍 reading…', done: '✓ done', needstore: '❓ pick store', error: '⚠ failed' }[q.status];
+    const store = q.store ? { w: 'Woolworths', c: 'Coles', a: 'Aldi' }[q.store] : '';
+    return `<div class="rcpthumb ${q.status}"><div class="rcpn">Receipt ${i + 1}</div><div class="rcps">${lab}${store ? ' · ' + store : ''}</div>${
+      q.status === 'needstore'
+        ? `<div class="rcpstores">${['w', 'c', 'a'].map(s => `<button class="xbtn rcpsetstore" data-i="${i}" data-s="${s}">${{ w: 'Woolies', c: 'Coles', a: 'Aldi' }[s]}</button>`).join('')}</div>`
+        : ''}</div>`;
+  }).join('');
+  document.querySelectorAll('.rcpsetstore').forEach(b => b.onclick = () => {
+    rcQueue[b.dataset.i].store = b.dataset.s;
+    rcQueue[b.dataset.i].status = 'done';
+    rcRenderQueue(); rcRenderReview();
+  });
+}
+
+function rcRenderReview() {
+  const ready = rcQueue.filter(q => q.status === 'done' && q.store);
+  if (!ready.length || rcQueue.some(q => q.status === 'pending' || q.status === 'processing')) { $('rcpReview').innerHTML = ''; return; }
+  const sName = { w: 'Woolworths', c: 'Coles', a: 'Aldi' };
+  const opts = Object.entries(ING).map(([k, g]) => [k, g.name]).sort((x, y) => x[1].localeCompare(y[1]));
+  let html = '';
+  ready.forEach((q, qi) => {
+    if (!q.items.length) { html += `<div class="rcpgroup"><b>${sName[q.store]}</b> <span class="hint">no item lines read, try a flatter and brighter photo</span></div>`; return; }
+    html += `<div class="rcpgroup"><b>${sName[q.store]} receipt</b> · ${q.items.length} line${q.items.length > 1 ? 's' : ''} read</div>`;
+    q.items.forEach((it, ii) => {
+      const cur = it.sel ? ING[it.sel][q.store] : null;
+      const delta = (it.sel && cur != null) ? it.price - cur : null;
+      const dTxt = delta == null ? '' : Math.abs(delta) < 0.03 ? '<span class="rcpsame">matches</span>'
+        : `<span class="${delta > 0 ? 'rcpup' : 'rcpdown'}">${delta > 0 ? '▲' : '▼'} ${fmt(Math.abs(delta))} vs ${cur == null ? 'n/a' : fmt(cur)}</span>`;
+      html += `<div class="rcprow ${it.accepted ? '' : 'off'}">
+        <input type="checkbox" class="rcpok" data-q="${qi}" data-i="${ii}" ${it.accepted ? 'checked' : ''}>
+        <div class="rcpmain">
+          <select class="rcpsel" data-q="${qi}" data-i="${ii}">
+            <option value="">(ignore this line)</option>
+            ${opts.map(([k, n]) => `<option value="${k}" ${it.sel === k ? 'selected' : ''}>${n}</option>`).join('')}
+          </select>
+          <div class="rcpraw">"${it.raw}"${it.key && it.score < RC_CONFIDENT ? ' · <i>best guess, please check</i>' : ''}${!it.key ? ' · <i>no match found</i>' : ''}</div>
+        </div>
+        <div class="rcpprice"><b>${fmt(it.price)}</b><div>${dTxt}</div></div>
+      </div>`;
+    });
+  });
+  const actual = ready.reduce((t, q) => t + q.items.reduce((s, it) => s + it.price, 0), 0);
+  const planned = evaluate([...picked]).totSplit;
+  html += `<div class="rcpvar">Receipts total <b>${fmt(actual)}</b> vs planned <b>${fmt(planned)}</b> · variance <b>${planned > 0 ? (100 * (actual - planned) / planned).toFixed(1) : '0.0'}%</b><br><span class="hint">Gate check: 3 straight weeks inside 10% and the plan is proven against reality.</span></div>`;
+  $('rcpReview').innerHTML = html;
+  $('rcpApply').disabled = false;
+  document.querySelectorAll('.rcpok').forEach(cb => cb.onchange = () => {
+    const it = rcQueue.filter(q => q.status === 'done' && q.store)[cb.dataset.q].items[cb.dataset.i];
+    it.accepted = cb.checked; cb.closest('.rcprow').classList.toggle('off', !cb.checked);
+  });
+  document.querySelectorAll('.rcpsel').forEach(sel => sel.onchange = () => {
+    const it = rcQueue.filter(q => q.status === 'done' && q.store)[sel.dataset.q].items[sel.dataset.i];
+    it.sel = sel.value || null;
+    if (it.sel) { it.accepted = true; sel.closest('.rcprow').classList.remove('off'); sel.closest('.rcprow').querySelector('.rcpok').checked = true; }
+    rcRenderReview();
+  });
+}
+
+function rcApply() {
+  const ready = rcQueue.filter(q => q.status === 'done' && q.store);
+  let applied = 0, learned = 0, actual = 0;
+  for (const q of ready) {
+    for (const it of q.items) {
+      actual += it.price;
+      if (!it.accepted || !it.sel || !ING[it.sel]) continue;
+      ING[it.sel][q.store] = it.price;
+      (priceEdits[it.sel] = priceEdits[it.sel] || {})[q.store] = it.price;   // receipt-verified: outranks remote refresh
+      applied++;
+      const N = rcNorm(it.raw);
+      if (it.sel !== it.key && N.length >= 4) { synLearned[N] = it.sel; learned++; }   // remember the correction
+    }
+  }
+  const planned = evaluate([...picked]).totSplit;
+  varianceLog.push({ date: new Date().toISOString().slice(0, 10), planned: Math.round(planned * 100) / 100, actual: Math.round(actual * 100) / 100 });
+  if (varianceLog.length > 26) varianceLog = varianceLog.slice(-26);
+  renderAll();
+  $('scanMode').hidden = true; document.body.style.overflow = '';
+  toast(`${applied} price${applied === 1 ? '' : 's'} updated from receipts${learned ? ` · ${learned} match${learned === 1 ? '' : 'es'} learned` : ''}`);
+  rcQueue = [];
+  if (rcWorker) { rcWorker.terminate().catch(() => {}); rcWorker = null; }
+}
+
 // ---------------- PERSISTENCE (PWA) ----------------
 // Guarded: in sandboxed previews localStorage is unavailable; the app still runs, just without memory.
 const STORE_KEY = 'pantrypicks.v1';
@@ -1217,7 +1530,7 @@ function saveState() {
   if (!CAN_STORE) return;
   try {
     localStorage.setItem(STORE_KEY, JSON.stringify({
-      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], skipped: [...skipped], priceEdits, extras,
+      people, picked: [...picked], times, plan, pantryHave: [...pantryHave], skipped: [...skipped], priceEdits, extras, synLearned, varianceLog,
     }));
   } catch (err) { /* storage full or blocked: carry on */ }
 }
@@ -1241,6 +1554,11 @@ function loadState() {
       extras = {};
       for (const [k, n] of Object.entries(s.extras)) if (ING[k] && typeof n === 'number' && n > 0) extras[k] = n;
     }
+    if (s.synLearned && typeof s.synLearned === 'object') {
+      synLearned = {};
+      for (const [t, k] of Object.entries(s.synLearned)) if (ING[k] && typeof t === 'string') synLearned[t] = k;
+    }
+    if (Array.isArray(s.varianceLog)) varianceLog = s.varianceLog.filter(v => v && typeof v.planned === 'number' && typeof v.actual === 'number').slice(-26);
     if (s.priceEdits && typeof s.priceEdits === 'object') {
       priceEdits = s.priceEdits;
       for (const [k, ed] of Object.entries(priceEdits)) {
@@ -1477,6 +1795,23 @@ $('rcClose').onclick = () => { $('recipeMode').hidden = true; document.body.styl
 $('recipeMode').onclick = (ev) => { if (ev.target === $('recipeMode')) $('rcClose').onclick(); };
 
 $('btnStore').onclick = () => { renderStoreMode(); $('storeMode').hidden = false; document.body.style.overflow = 'hidden'; };
+$('btnScan').onclick = () => $('rcptFiles').click();
+$('rcptFiles').onchange = () => {
+  const files = [...$('rcptFiles').files];
+  if (!files.length) return;
+  rcQueue = files.map(f => ({ name: f.name, status: 'pending', store: null, items: [] }));
+  $('rcpReview').innerHTML = ''; $('rcpApply').disabled = true;
+  $('scanMode').hidden = false; document.body.style.overflow = 'hidden';
+  rcRenderQueue();
+  rcProcessQueue(files);
+  $('rcptFiles').value = '';
+};
+$('rcpClose').onclick = () => {
+  $('scanMode').hidden = true; document.body.style.overflow = '';
+  rcQueue = [];
+  if (rcWorker) { rcWorker.terminate().catch(() => {}); rcWorker = null; }
+};
+$('rcpApply').onclick = rcApply;
 $('ovClose').onclick = () => { $('storeMode').hidden = true; document.body.style.overflow = ''; };
 $('storeMode').onclick = (ev) => { if (ev.target === $('storeMode')) $('ovClose').onclick(); };
 $('ovShare').onclick = async () => {
