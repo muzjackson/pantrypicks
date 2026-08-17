@@ -571,7 +571,8 @@
       </div>
       <div class="ovfoot">
         <button class="xbtn xbtn-primary" id="rcpApply" disabled>Apply checked prices</button>
-        <span class="hint">Unchecked lines are ignored · corrections you make are remembered for next time</span>
+        <button class="xbtn xbtn-primary" id="rcpShare" hidden>Share price report</button>
+        <span class="hint" id="rcpFootHint">Unchecked lines are ignored · corrections you make are remembered for next time</span>
       </div>
     </div>
   </div>
@@ -1544,26 +1545,58 @@ function rcRenderReview() {
   });
 }
 
+// Machine-readable price report: receipt-confirmed prices are ground truth for their store
+// on their date, and this report feeds them back into the shared price database (the routine
+// treats them as highest-trust, never overwritten by scraped estimates, only by newer receipts).
+function rcBuildReport(entries, actual, planned, dateStr) {
+  const byStore = { w: [], c: [], a: [] };
+  for (const e of entries) byStore[e.store].push(e);
+  let out = 'PANTRYPICKS PRICE REPORT v1\ndate: ' + dateStr + '\n';
+  const label = { w: 'woolworths', c: 'coles', a: 'aldi' };
+  for (const s of ['w', 'c', 'a']) {
+    if (!byStore[s].length) continue;
+    out += '[' + label[s] + ']\n';
+    for (const e of byStore[s]) out += e.key + '=' + e.price.toFixed(2) + '  # ' + ING[e.key].name + '\n';
+  }
+  out += 'receipts_total=' + actual.toFixed(2) + '\nplanned_total=' + planned.toFixed(2) + '\n';
+  return out;
+}
+let rcLastReport = '';
+
 function rcApply() {
   const ready = rcQueue.filter(q => q.status === 'done' && q.store);
   let applied = 0, learned = 0, actual = 0;
+  const reportEntries = [];
   for (const q of ready) {
     actual += q.stated != null ? q.stated : q.items.reduce((s, it) => s + (it.lineTotal != null ? it.lineTotal : it.price), 0) + (q.adjust || 0);
     for (const it of q.items) {
       if (!it.accepted || !it.sel || !ING[it.sel]) continue;
       ING[it.sel][q.store] = it.price;
       (priceEdits[it.sel] = priceEdits[it.sel] || {})[q.store] = it.price;   // receipt-verified: outranks remote refresh
+      reportEntries.push({ key: it.sel, store: q.store, price: it.price });
       applied++;
       const N = rcNorm(it.raw);
       if (it.sel !== it.key && N.length >= 4) { synLearned[N] = it.sel; learned++; }   // remember the correction
     }
   }
   const planned = evaluate([...picked]).totSplit;
-  varianceLog.push({ date: new Date().toISOString().slice(0, 10), planned: Math.round(planned * 100) / 100, actual: Math.round(actual * 100) / 100 });
+  const dateStr = new Date().toISOString().slice(0, 10);
+  varianceLog.push({ date: dateStr, planned: Math.round(planned * 100) / 100, actual: Math.round(actual * 100) / 100 });
   if (varianceLog.length > 26) varianceLog = varianceLog.slice(-26);
   renderAll();
-  $('scanMode').hidden = true; document.body.style.overflow = '';
-  toast(`${applied} price${applied === 1 ? '' : 's'} updated from receipts${learned ? ` · ${learned} match${learned === 1 ? '' : 'es'} learned` : ''}`);
+  toast(`${applied} price${applied === 1 ? '' : 's'} updated on this device${learned ? ` · ${learned} match${learned === 1 ? '' : 'es'} learned` : ''}`);
+  rcLastReport = applied ? rcBuildReport(reportEntries, actual, planned, dateStr) : '';
+  // report screen: share the confirmed prices back to the shared database
+  $('rcpQueue').innerHTML = '';
+  $('rcpReview').innerHTML = applied
+    ? `<div class="rcpvar"><b>${applied} price${applied === 1 ? '' : 's'} updated on this device.</b><br>
+       Share the report below and the shared price database gets the same receipt-confirmed prices, so both phones and future price refreshes carry them.<br><br>
+       <pre style="white-space:pre-wrap;font-size:11px;background:var(--surface-1);border:1px solid var(--border);border-radius:8px;padding:8px;margin:0">${rcLastReport}</pre></div>`
+    : '<div class="rcpvar">No prices were applied.</div>';
+  $('rcpApply').hidden = true;
+  $('rcpShare').hidden = !applied;
+  $('rcpFootHint').textContent = applied ? 'Send it to Claude or save it to the project and it flows into the next deploy' : '';
+  $('rcpClose').textContent = 'Done';
   rcQueue = [];
   if (rcWorker) { rcWorker.terminate().catch(() => {}); rcWorker = null; }
 }
@@ -1852,7 +1885,9 @@ $('rcptFiles').onchange = () => {
   const files = [...$('rcptFiles').files];
   if (!files.length) return;
   rcQueue = files.map(f => ({ name: f.name, status: 'pending', store: null, items: [] }));
-  $('rcpReview').innerHTML = ''; $('rcpApply').disabled = true;
+  $('rcpReview').innerHTML = ''; $('rcpApply').disabled = true; $('rcpApply').hidden = false;
+  $('rcpShare').hidden = true; $('rcpClose').textContent = 'Cancel';
+  $('rcpFootHint').textContent = 'Unchecked lines are ignored · corrections you make are remembered for next time';
   $('scanMode').hidden = false; document.body.style.overflow = 'hidden';
   rcRenderQueue();
   rcProcessQueue(files);
@@ -1864,6 +1899,19 @@ $('rcpClose').onclick = () => {
   if (rcWorker) { rcWorker.terminate().catch(() => {}); rcWorker = null; }
 };
 $('rcpApply').onclick = rcApply;
+$('rcpShare').onclick = async () => {
+  if (!rcLastReport) return;
+  if (navigator.share) {
+    try { await navigator.share({ title: 'PantryPicks price report', text: rcLastReport }); return; } catch (err) { /* cancelled -> fall through */ }
+  }
+  try { await navigator.clipboard.writeText(rcLastReport); toast('Report copied, paste it to Claude or into the project'); }
+  catch (err) {
+    const ta = document.createElement('textarea');
+    ta.value = rcLastReport; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+    toast('Report copied, paste it to Claude or into the project');
+  }
+};
 $('ovClose').onclick = () => { $('storeMode').hidden = true; document.body.style.overflow = ''; };
 $('storeMode').onclick = (ev) => { if (ev.target === $('storeMode')) $('ovClose').onclick(); };
 $('ovShare').onclick = async () => {
