@@ -647,7 +647,7 @@ const ING = {
   bacon:    { name:'Bacon rashers',          aisle:'Meat & Seafood', unit:'g',     pack:250,  packLabel:'250g pack',     w:6.00,  c:6.50,  keeps:false, src:'ind'  },
   ham:      { name:'Sliced ham',             aisle:'Meat & Seafood', unit:'g',     pack:200,  packLabel:'200g pack',     w:4.50,  c:4.70,  keeps:false, src:'ind'  },
   milk:     { name:'Milk',                   aisle:'Dairy & Eggs',   unit:'ml',    pack:1000, packLabel:'1L',            w:3.10,  c:3.10,  keeps:false, src:'ind'  },
-  butter:   { name:'Butter',                 aisle:'Dairy & Eggs',   unit:'g',     pack:250,  packLabel:'250g block',    w:4.50,  c:4.50,  keeps:true,  src:'live' },
+  butter:   { name:'Butter / margarine',     aisle:'Drinks, Spreads & Sauces', unit:'g', pack:250, packLabel:'250g block', w:4.50,  c:4.50,  keeps:true,  src:'live' },
   bread:    { name:'Wholemeal bread',        aisle:'Bakery',         unit:'g',     pack:700,  packLabel:'700g loaf',     w:3.50,  c:3.50,  keeps:true,  src:'live' },
   rolls:    { name:'Bread rolls',            aisle:'Bakery',         unit:'pcs',   pack:6,    packLabel:'6 pack',        w:3.50,  c:3.50,  keeps:true,  src:'ind'  },
   oats:     { name:'Rolled oats',            aisle:'Pantry',         unit:'g',     pack:750,  packLabel:'750g',          w:1.60,  c:2.40,  keeps:true,  src:'live' },
@@ -675,6 +675,9 @@ const ING = {
   partyMix: { name:'Party mix lollies',          aisle:'Snacks',         unit:'g',     pack:520,  packLabel:'520g bag',      w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
   chipsStacked:{ name:'Stacked chips',           aisle:'Snacks',         unit:'g',     pack:160,  packLabel:'160g tube',     w:2.50,  c:2.60,  keeps:true,  src:'ind'  },
   mandarins:{ name:'Mandarins',                  aisle:'Snacks',         unit:'g',     pack:1000, packLabel:'~1kg',          w:5.90,  c:5.90,  keeps:false, src:'ind'  },
+  coffeePods:{ name:'Coffee pods',               aisle:'Drinks, Spreads & Sauces', unit:'each', pack:1, packLabel:'30-pod box', w:19.00, c:20.00, a:12.99, keeps:true, src:'ind' },
+  sodaWater:{ name:'Soda water',                 aisle:'Drinks, Spreads & Sauces', unit:'each', pack:1, packLabel:'1.25L bottle', w:1.50, c:1.50, a:0.85, keeps:true, src:'ind' },
+  washingLiquid:{ name:'Washing liquid',         aisle:'Household',      unit:'each',  pack:1,    packLabel:'1L bottle',     w:5.50,  c:5.50,  a:3.99, keeps:true,  src:'ind'  },
   tissues:  { name:'Facial tissues',             aisle:'Household',      unit:'each',  pack:1,    packLabel:'224pk box',     w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
   toiletPaper:{ name:'Toilet paper',             aisle:'Household',      unit:'each',  pack:1,    packLabel:'12 pack',       w:9.00,  c:9.50,  keeps:true,  src:'ind'  },
   shampoo:  { name:'Shampoo',                    aisle:'Household',      unit:'each',  pack:1,    packLabel:'bottle',        w:4.50,  c:4.50,  keeps:true,  src:'ind'  },
@@ -746,7 +749,7 @@ const CATS = [
   { id:'lunch',     label:'Lunch' },
   { id:'dinner',    label:'Dinner' },
 ];
-const TABS = [...CATS, { id:'snacks', label:'Snacks', excat:'Snacks' }, { id:'household', label:'Household', excat:'Household' }];   // planner rows use CATS; extras tabs hold weekly items, not meals
+const TABS = [...CATS, { id:'snacks', label:'Snacks', excat:'Snacks' }, { id:'drinks', label:'Drinks & spreads', excat:'Drinks' }, { id:'household', label:'Household', excat:'Household' }];   // planner rows use CATS; extras tabs hold weekly items, not meals
 let activeCat = 'dinner';
 
 const BASE_SERVES = 2;   // recipe quantities are written for 2 people (Muz's spec, 26 Jul 2026)
@@ -764,12 +767,14 @@ let plan = {};   // "day|cat" -> mealId (week planner assignments)
 let extras = {};   // ingredient key -> packs of it added to this week's shop (snacks & household)
 const EXTRAS_DEF = [
   { k:'muesliBars', cat:'Snacks' }, { k:'partyMix', cat:'Snacks' }, { k:'chipsStacked', cat:'Snacks' },
-  { k:'mandarins', cat:'Snacks' }, { k:'banana', cat:'Snacks', qty:6 },
-  { k:'tissues', cat:'Household' }, { k:'toiletPaper', cat:'Household' },
+  { k:'mandarins', cat:'Snacks' }, { k:'banana', cat:'Snacks', qty:3 },
+  { k:'coffeePods', cat:'Drinks' }, { k:'sodaWater', cat:'Drinks' }, { k:'butter', cat:'Drinks' },
+  { k:'tissues', cat:'Household' }, { k:'toiletPaper', cat:'Household' }, { k:'washingLiquid', cat:'Household' },
   { k:'shampoo', cat:'Household' }, { k:'bodyWash', cat:'Household' },
 ];
 const EXTRA_EMOJI = { muesliBars:'🍫', partyMix:'🍬', chipsStacked:'🥔', mandarins:'🍊', banana:'🍌',
-  tissues:'🤧', toiletPaper:'🧻', shampoo:'🧴', bodyWash:'🧼' };
+  coffeePods:'☕', sodaWater:'🫧', butter:'🧈',
+  tissues:'🤧', toiletPaper:'🧻', shampoo:'🧴', bodyWash:'🧼', washingLiquid:'🧺' };
 
 // Cooking methods, written for the 2-serve base. Ingredient quantities shown in the
 // recipe view are scaled to the current household size automatically.
@@ -1025,7 +1030,7 @@ const EMOJI = { spagbol:'🍝', butterchk:'🍛', greencurry:'🍲', padthai:'�
   weetbixMilk:'🥛', eggsMush:'🍳', eggsAvo:'🥑', porridge:'🥣',
   wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛',
   massaman:'🥘', quesadillas:'🫓', spagMeatballs:'🧆' };
-const AISLE_ICON = { 'Meat & Seafood':'🥩', 'Fresh Produce':'🥬', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫', 'Snacks':'🍿', 'Household':'🧻' };
+const AISLE_ICON = { 'Fresh Produce':'🥬', 'Meat & Seafood':'🥩', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫', 'Drinks, Spreads & Sauces':'🥤', 'Snacks':'🍿', 'Household':'🧻' };
 const $ = id => document.getElementById(id);
 const fmt = v => '$' + v.toFixed(2);
 const qty = (v, u) => (u === 'g' || u === 'ml') ? (v >= 1000 ? (v/1000).toFixed(v % 1000 ? 1 : 0) + (u === 'g' ? 'kg' : 'L') : v + u) : v + ' ' + u;
@@ -1187,7 +1192,7 @@ function renderSwaps() {
 }
 
 function renderList(e) {
-  const aisles = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry', 'Snacks', 'Household'];
+  const aisles = ['Fresh Produce', 'Meat & Seafood', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry', 'Drinks, Spreads & Sauces', 'Snacks', 'Household'];
   let html = `<thead><tr>
     <th>Item</th><th>Need → Buy</th><th class="num">Woolies $</th><th class="num">Coles $</th><th class="num">Aldi $</th>
     <th>Utilisation</th><th class="num">Cost (best)</th></tr></thead><tbody>`;
@@ -1295,6 +1300,10 @@ const RECEIPT_SYNONYMS = {
   'STIR FRY VEG': 'stirfryVeg', 'STIRFRY VEGETABLES': 'stirfryVeg',
   'SALMON': 'salmon', 'SALMON PORTIONS': 'salmon', 'ATLANTIC SALMON': 'salmon',
   'GYOZA': 'gyoza', 'DUMPLINGS': 'gyoza',
+  'COFFEE PODS': 'coffeePods', 'COFFEE CAPSULES': 'coffeePods', 'EXPRESSI': 'coffeePods', 'NESPRESSO': 'coffeePods',
+  'SODA WATER': 'sodaWater', 'SPARKLING WATER': 'sodaWater', 'MINERAL WATER': 'sodaWater',
+  'MARGARINE': 'butter', 'MARG SPREAD': 'butter', 'CANOLA SPREAD': 'butter',
+  'LAUNDRY LIQUID': 'washingLiquid', 'WASHING LIQUID': 'washingLiquid', 'DISHWASHING LIQUID': 'washingLiquid', 'DISH LIQUID': 'washingLiquid',
 };
 
 // Words on receipts that carry no matching signal (brands, sizes, filler).
@@ -1646,7 +1655,7 @@ function renderAll() {
     Optimiser objective = best-price basket cost + $ value of perishable leftovers.`;
 }
 // ---------------- EXPORT ----------------
-const AISLES = ['Meat & Seafood', 'Fresh Produce', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry', 'Snacks', 'Household'];
+const AISLES = ['Fresh Produce', 'Meat & Seafood', 'Dairy & Eggs', 'Bakery', 'Freezer', 'Pantry', 'Drinks, Spreads & Sauces', 'Snacks', 'Household'];
 function exportRows() {
   const e = evaluate([...picked]);
   const out = [];
