@@ -649,7 +649,7 @@ const ING = {
   bacon:    { name:'Bacon rashers',          aisle:'Meat & Seafood', unit:'g',     pack:250,  packLabel:'250g pack',     w:6.00,  c:6.50,  keeps:false, src:'ind'  },
   ham:      { name:'Sliced ham',             aisle:'Meat & Seafood', unit:'g',     pack:200,  packLabel:'200g pack',     w:4.50,  c:4.70,  keeps:false, src:'ind'  },
   milk:     { name:'Milk',                   aisle:'Dairy & Eggs',   unit:'ml',    pack:1000, packLabel:'1L',            w:3.10,  c:3.10,  keeps:false, src:'ind'  },
-  butter:   { name:'Butter / margarine',     aisle:'Drinks, Spreads & Sauces', unit:'g', pack:250, packLabel:'250g block', w:4.50,  c:4.50,  keeps:true,  src:'live' },
+  butter:   { name:'Butter / margarine',     aisle:'Drinks, Spreads & Sauces', unit:'g', pack:500, packLabel:'500g tub', w:4.50,  c:4.50,  keeps:true,  src:'live' },
   bread:    { name:'Wholemeal bread',        aisle:'Bakery',         unit:'g',     pack:700,  packLabel:'700g loaf',     w:3.50,  c:3.50,  keeps:true,  src:'live' },
   rolls:    { name:'Bread rolls',            aisle:'Bakery',         unit:'pcs',   pack:6,    packLabel:'6 pack',        w:3.50,  c:3.50,  keeps:true,  src:'ind'  },
   oats:     { name:'Rolled oats',            aisle:'Pantry',         unit:'g',     pack:750,  packLabel:'750g',          w:1.60,  c:2.40,  keeps:true,  src:'live' },
@@ -694,7 +694,7 @@ const ALDI_NA = ['curry', 'padThaiKit', 'gyoza', 'pestoMeal', 'smokyMeal', 'lemo
 // Receipt-verified (Aldi Whitfords 03.08.26) + tracker anchors. eggs = per-dozen equivalent of the 18pk @ $7.69;
 // cheese = per-500g equivalent of the 1kg block @ $8.99.
 const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTom:0.95, coconut:2.79,
-  carrots:1.89, onion:0.50, butter:4.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
+  carrots:1.89, onion:0.50, butter:3.19, banana:0.67, milk:2.95, weetbix:3.69, oats:1.99, bread:2.49,
   couscous:1.99, cornChips:2.39, burritoKit:5.49, kidneyBeans:0.89, coconutCream:1.69, salsa:1.79,
   sourCream:3.09, guac:2.69, meatballs:7.99, slawKit:3.49, cheese:4.50, cherryTom:2.99, avocado:1.79,
   muesliBars:3.99, partyMix:3.59, chipsStacked:1.99, mandarins:3.49, tissues:1.89, toiletPaper:7.49, shampoo:3.99, bodyWash:3.49, chickenSlices:6.49,
@@ -702,7 +702,7 @@ const ALDI_ANCHOR = { mince:9.99, eggs:5.13, spaghetti:0.89, rice:2.29, cannedTo
 const RECEIPT_LIVE = ['mince','eggs','cannedTom','couscous','cornChips','burritoKit','kidneyBeans','coconutCream',
   'salsa','sourCream','guac','meatballs','slawKit','cheese','cherryTom','avocado','banana','onion',
   'muesliBars','partyMix','chipsStacked','mandarins','tissues','toiletPaper','shampoo','bodyWash','chickenSlices',
-  'sodaWater','rolls','potatoes','broccoli','coffeePods','tortillas'];
+  'sodaWater','rolls','potatoes','broccoli','coffeePods','tortillas','butter'];
 for (const [k, g] of Object.entries(ING)) {
   if (ALDI_NA.includes(k)) g.a = null;
   else if (ALDI_ANCHOR[k] != null) g.a = ALDI_ANCHOR[k];

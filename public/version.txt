@@ -1,4 +1,4 @@
-commit: price-report-export-2026-08-17
-build: 2026-08-17 scan v3: shareable price report closes the receipt-to-database loop
+commit: report-ingest-2026-08-17
+build: 2026-08-17 first in-app price report ingested: butter/margarine repointed to 500g tub (Aldi 3.19)
 prices_updated: 2026-08-17
 prices_keys: 98

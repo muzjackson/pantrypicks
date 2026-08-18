@@ -1,6 +1,6 @@
 {
  "updated": "2026-08-17",
- "source": "Receipts: Aldi Karrinyup 17.08.26 (chicken slices 200g 6.49 confirmed twice, soda water 1.09, rolls 6pk 2.69, potatoes 2kg 4.99, mandarins 3.49/kg, broccoli 5.49/kg, NCC Lungo pods 10pk 3.25) + Coles Prospect 10.08.26 (avocado regular 2.50 ea, Mission wraps 8pk 5.50); Woolworths Karrinyup 17.08.26 no tracked-item changes; staples unchanged vs Aldi Whitfords 03.08.26; prior: Grocerize 16.08.26",
+ "source": "In-app receipt report 17.08.26 (butter/margarine repointed to 500g tub, Aldi Olive Light 3.19; report cross-checked against receipt photos, 2 line-total artefacts and 1 rate misread rejected); Receipts: Aldi Karrinyup 17.08.26 (chicken slices 200g 6.49 confirmed twice, soda water 1.09, rolls 6pk 2.69, potatoes 2kg 4.99, mandarins 3.49/kg, broccoli 5.49/kg, NCC Lungo pods 10pk 3.25) + Coles Prospect 10.08.26 (avocado regular 2.50 ea, Mission wraps 8pk 5.50); Woolworths Karrinyup 17.08.26 no tracked-item changes; staples unchanged vs Aldi Whitfords 03.08.26; prior: Grocerize 16.08.26",
  "pipeline": "claude-scheduled-task",
  "prices": {
   "chicken": {
@@ -372,7 +372,7 @@
   "butter": {
    "w": 4.5,
    "c": 4.5,
-   "a": 4.19,
+   "a": 3.19,
    "src": "live"
   },
   "bread": {
