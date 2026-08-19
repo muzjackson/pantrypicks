@@ -618,7 +618,9 @@ const ING = {
   bcSauce:  { name:'Butter chicken sauce',   aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:3.15,  c:3.90,  keeps:false, src:'live' },
   ssSauce:  { name:'Sweet & sour sauce',     aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:3.00,  c:3.20,  keeps:false, src:'ind'  },
   ptSauce:  { name:'Pad thai sauce',         aisle:'Pantry',         unit:'g',     pack:265,  packLabel:'265g jar',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
-  peanutButter:{ name:'Peanut butter',       aisle:'Pantry',         unit:'g',     pack:375,  packLabel:'375g jar',      w:4.00,  c:4.00,  keeps:true,  src:'ind'  },
+  peanutButter:{ name:'Peanut butter',       aisle:'Drinks, Spreads & Sauces', unit:'g', pack:375, packLabel:'375g jar', w:4.00,  c:4.00,  keeps:true,  src:'ind'  },
+  vegemite: { name:'Vegemite',               aisle:'Drinks, Spreads & Sauces', unit:'g', pack:380, packLabel:'380g jar', w:7.50,  c:7.50,  keeps:true,  src:'ind'  },
+  jam:      { name:'Jam',                    aisle:'Drinks, Spreads & Sauces', unit:'g', pack:500, packLabel:'500g jar', w:3.80,  c:3.80,  keeps:true,  src:'ind'  },
   soy:      { name:'Soy sauce',              aisle:'Pantry',         unit:'ml',    pack:250,  packLabel:'250ml',         w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
   tortillas:{ name:'Tortillas',              aisle:'Pantry',         unit:'pcs',   pack:8,    packLabel:'8 pack',        w:4.20,  c:5.50,  keeps:true,  src:'ind'  },
   beans:    { name:'Black beans',            aisle:'Pantry',         unit:'g',     pack:400,  packLabel:'400g can',      w:1.40,  c:1.40,  keeps:false, src:'ind'  },
@@ -773,11 +775,12 @@ const EXTRAS_DEF = [
   { k:'muesliBars', cat:'Snacks' }, { k:'partyMix', cat:'Snacks' }, { k:'chipsStacked', cat:'Snacks' },
   { k:'mandarins', cat:'Snacks' }, { k:'banana', cat:'Snacks', qty:3 },
   { k:'coffeePods', cat:'Drinks' }, { k:'sodaWater', cat:'Drinks' }, { k:'butter', cat:'Drinks' },
+  { k:'vegemite', cat:'Drinks' }, { k:'peanutButter', cat:'Drinks' }, { k:'jam', cat:'Drinks' },
   { k:'tissues', cat:'Household' }, { k:'toiletPaper', cat:'Household' }, { k:'washingLiquid', cat:'Household' },
   { k:'shampoo', cat:'Household' }, { k:'bodyWash', cat:'Household' },
 ];
 const EXTRA_EMOJI = { muesliBars:'🍫', partyMix:'🍬', chipsStacked:'🥔', mandarins:'🍊', banana:'🍌',
-  coffeePods:'☕', sodaWater:'🫧', butter:'🧈',
+  coffeePods:'☕', sodaWater:'🫧', butter:'🧈', vegemite:'🇦🇺', peanutButter:'🥜', jam:'🍓',
   tissues:'🤧', toiletPaper:'🧻', shampoo:'🧴', bodyWash:'🧼', washingLiquid:'🧺' };
 
 // Cooking methods, written for the 2-serve base. Ingredient quantities shown in the
@@ -1015,7 +1018,7 @@ const SHORT = { chicken:'chicken', chickenSlices:'chicken slices', mince:'mince'
   rice:'rice', spaghetti:'spaghetti', riceNoodles:'rice noodles', hokkien:'hokkien', cannedTom:'tomatoes',
   coconut:'coconut milk', curry:'green paste', redPaste:'red paste', kormaPaste:'korma paste',
   bcSauce:'sauce', ssSauce:'s&s sauce', ptSauce:'pad thai sauce', peanutButter:'peanut butter',
-  soy:'soy', tortillas:'tortillas', beans:'beans', cornChips:'corn chips', salsa:'salsa',
+  soy:'soy', tortillas:'tortillas', beans:'beans', cornChips:'corn chips', salsa:'salsa', vegemite:'vegemite', jam:'jam',
   tacoSeas:'taco seasoning', cashews:'cashews', broccoli:'broccoli', capsicum:'capsicum',
   carrots:'carrots', onion:'onion', garlic:'garlic', potatoes:'potatoes', coriander:'coriander',
   slawKit:'slaw', lemon:'lemon', banana:'banana', lettuce:'lettuce', bacon:'bacon', ham:'ham',
@@ -1296,6 +1299,7 @@ const RECEIPT_SYNONYMS = {
   'OLIVE OIL': 'oliveOil', 'EV OLIVE OIL': 'oliveOil', 'EVOO': 'oliveOil',
   'SOY SAUCE': 'soy', 'SOY SCE': 'soy',
   'PEANUT BUTTER': 'peanutButter', 'PNUT BUTTER': 'peanutButter',
+  'VEGEMITE': 'vegemite', 'JAM': 'jam', 'STRAWBERRY JAM': 'jam', 'RASPBERRY JAM': 'jam', 'APRICOT JAM': 'jam',
   'KIDNEY BEANS': 'kidneyBeans', 'RED KIDNEY BEANS': 'kidneyBeans',
   'CHICKPEAS': 'chickpeas', 'CHICK PEAS': 'chickpeas',
   'TORTILLA': 'tortillas', 'TORTILLAS': 'tortillas', 'WRAPS': 'tortillas', 'MISSION WRAPS': 'tortillas', 'WRAP WHOLEMEAL': 'tortillas',
