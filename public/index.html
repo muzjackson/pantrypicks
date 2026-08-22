@@ -688,6 +688,28 @@ const ING = {
   bodyWash: { name:'Body wash',                  aisle:'Household',      unit:'each',  pack:1,    packLabel:'bottle',        w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
   coconutCream:{ name:'Coconut cream',           aisle:'Pantry',         unit:'ml',    pack:400,  packLabel:'400ml can',     w:2.20,  c:2.30,  keeps:false, src:'ind'  },
   quesadillaPack:{ name:'Quesadilla packet',     aisle:'Freezer',        unit:'each',  pack:1,    packLabel:'packet',        w:6.50,  c:6.80,  keeps:true,  src:'ind'  },
+  lasagne:  { name:'Lasagne sheets',             aisle:'Pantry',         unit:'g',     pack:250,  packLabel:'250g box',      w:2.50,  c:2.50,  keeps:true,  src:'ind'  },
+  parmesan: { name:'Parmesan (grated)',          aisle:'Dairy & Eggs',   unit:'g',     pack:125,  packLabel:'125g tub',      w:4.50,  c:4.70,  keeps:true,  src:'ind'  },
+  mozzarella:{ name:'Shredded mozzarella',       aisle:'Dairy & Eggs',   unit:'g',     pack:250,  packLabel:'250g bag',      w:4.00,  c:4.20,  keeps:false, src:'ind'  },
+  worcSauce:{ name:'Worcestershire sauce',       aisle:'Pantry',         unit:'ml',    pack:250,  packLabel:'250ml bottle',  w:2.80,  c:2.80,  keeps:true,  src:'ind'  },
+  tomSauce: { name:'Tomato sauce (ketchup)',     aisle:'Pantry',         unit:'ml',    pack:500,  packLabel:'500ml bottle',  w:3.20,  c:3.30,  keeps:true,  src:'ind'  },
+  sausages: { name:'Thin sausages',              aisle:'Meat & Seafood', unit:'pcs',   pack:8,    packLabel:'8 pack',        w:5.50,  c:6.00,  keeps:false, src:'ind'  },
+  gravox:   { name:'Gravy powder',               aisle:'Pantry',         unit:'g',     pack:120,  packLabel:'120g tin',      w:3.00,  c:3.20,  keeps:true,  src:'ind'  },
+  shortcrust:{ name:'Shortcrust pastry sheets',  aisle:'Freezer',        unit:'sheets',pack:4,    packLabel:'4-sheet pack',  w:4.00,  c:4.20,  keeps:true,  src:'ind'  },
+  puffPastry:{ name:'Puff pastry sheets',        aisle:'Freezer',        unit:'sheets',pack:5,    packLabel:'5-sheet pack',  w:4.50,  c:4.50,  keeps:true,  src:'ind'  },
+  peas:     { name:'Frozen peas',                aisle:'Freezer',        unit:'g',     pack:500,  packLabel:'500g bag',      w:2.20,  c:2.30,  keeps:true,  src:'ind'  },
+  zucchini: { name:'Zucchini',                   aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.20,  c:1.30,  keeps:false, src:'ind'  },
+  leek:     { name:'Leek',                       aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:2.50,  c:2.50,  keeps:false, src:'ind'  },
+  celery:   { name:'Celery',                     aisle:'Fresh Produce',  unit:'bunch', pack:1,    packLabel:'bunch',         w:3.50,  c:3.90,  keeps:false, src:'ind'  },
+  swede:    { name:'Swede',                      aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.50,  c:1.60,  keeps:true,  src:'ind'  },
+  turnip:   { name:'Turnip',                     aisle:'Fresh Produce',  unit:'each',  pack:1,    packLabel:'each',          w:1.50,  c:1.60,  keeps:true,  src:'ind'  },
+  ginger:   { name:'Ginger',                     aisle:'Fresh Produce',  unit:'g',     pack:100,  packLabel:'~100g knob',    w:1.20,  c:1.30,  keeps:true,  src:'ind'  },
+  snowPeas: { name:'Snow peas',                  aisle:'Fresh Produce',  unit:'g',     pack:150,  packLabel:'150g pack',     w:3.00,  c:3.20,  keeps:false, src:'ind'  },
+  soupMix:  { name:'Dry soup mix',               aisle:'Pantry',         unit:'g',     pack:500,  packLabel:'500g pack',     w:2.20,  c:2.30,  keeps:true,  src:'ind'  },
+  bbqChicken:{ name:'BBQ chicken (cooked)',      aisle:'Meat & Seafood', unit:'each',  pack:1,    packLabel:'whole',         w:12.50, c:12.50, keeps:false, src:'ind'  },
+  chickenThighs:{ name:'Chicken thigh fillets',  aisle:'Meat & Seafood', unit:'g',     pack:1000, packLabel:'1kg pack',      w:11.50, c:12.00, keeps:false, src:'ind'  },
+  condensedMilk:{ name:'Condensed milk',         aisle:'Pantry',         unit:'g',     pack:395,  packLabel:'395g can',      w:2.50,  c:2.60,  keeps:false, src:'ind'  },
+  beefStrips:{ name:'Beef stir-fry strips',      aisle:'Meat & Seafood', unit:'g',     pack:500,  packLabel:'500g pack',     w:9.50,  c:10.00, keeps:false, src:'ind'  },
 };
 
 // Aldi pricing: a = price, null = not stocked (limited range). Hand-set anchors below;
@@ -736,6 +758,17 @@ const RECIPES = [
   { id:'massaman',   name:'Massaman curry',           ing:{ massamanPaste:210, chicken:300, onion:1, potatoes:600, coconutCream:400, rice:200 } },
   { id:'quesadillas',name:'Quesadillas & slaw',       ing:{ quesadillaPack:2, slawKit:400 } },
   { id:'spagMeatballs', name:'Spaghetti & meatballs',  ing:{ meatballs:420, spaghetti:200, basilSauce:500 } },
+  // Partner's recipes (added 17 Aug 2026, written at serves 4, stored here at the 2-serve base)
+  { id:'lasagneChk',   name:'Chicken lasagne',          ing:{ lasagne:125, parmesan:40, mozzarella:125, onion:1, garlic:2, chicken:200, tomPaste:40, cannedTom:200, stock:100, spinach:125, mushrooms:125 } },
+  { id:'spagbolJar',   name:'Spag bol (jar sauce)',     ing:{ mince:250, onion:0.5, mushrooms:125, basilSauce:250, worcSauce:15, spaghetti:200 } },
+  { id:'nankingBeef',  name:'Nanking beef',             ing:{ steak:250, eggs:1, soy:5, garlic:2, tomSauce:60, worcSauce:20, rice:200 } },
+  { id:'sausagesVeg',  name:'Sausages & veg',           ing:{ sausages:2, potatoes:400, peas:100, carrots:60, milk:50, butter:20, gravox:15 } },
+  { id:'meatPie',      name:'Homemade meat pie',        ing:{ mince:250, onion:0.5, stock:250, tomSauce:30, worcSauce:5, shortcrust:0.5, puffPastry:0.5, butter:15, potatoes:400, milk:50, peas:100, gravox:15 } },
+  { id:'zucchiniSlice',name:'Zucchini slice',           ing:{ zucchini:2, onion:0.5, bacon:100, garlic:2, eggs:2.5, cheese:90, corn:65, carrots:60 } },
+  { id:'chickenSoup',  name:'Chicken & veg soup',       ing:{ leek:0.5, garlic:2, carrots:60, celery:0.25, zucchini:1, swede:0.5, turnip:0.5, soupMix:75, stock:1000, bbqChicken:0.13 } },
+  { id:'coconutChicken', name:'Coconut chicken curry',  ing:{ chickenThighs:250, onion:0.5, garlic:2, ginger:15, tomPaste:30, stock:375, coconutCream:200, potatoes:300, yoghurt:85, peas:90, rice:200 } },
+  { id:'meatloaf',     name:'Glazed meatloaf',          ing:{ mince:350, bread:120, onion:0.5, eggs:0.5, worcSauce:10, tomSauce:30, condensedMilk:100, celery:0.15, capsicum:0.5 } },
+  { id:'beefStirfry',  name:'Beef stir-fry (taco spice)', ing:{ beefStrips:250, broccoli:170, carrots:60, snowPeas:75, capsicum:0.5, mushrooms:60, cherryTom:75, tacoSeas:15, rice:200 } },
   // Breakfasts (serves 2) — Muz's spec
   { id:'weetbixMilk', name:'Weet-Bix & milk',           cat:'breakfast', ing:{ weetbix:45, milk:300 } },
   { id:'eggsMush',    name:'Eggs & mushrooms',          cat:'breakfast', ing:{ eggs:4, mushrooms:100 } },
@@ -897,6 +930,58 @@ const RECIPE_STEPS = {
     'Brown the meatballs in a little oil, rolling for colour, 5-6 min.',
     'Pour in the basil sauce, rinse the jar with a splash of water, simmer 8-10 min until meatballs are cooked through.',
     'Toss with the spaghetti and serve.'],
+  lasagneChk: [
+    'Oven to 180C. Dice the onion and garlic, soften in oil. Add diced chicken, brown 4-5 min.',
+    'Stir in tomato paste, then the diced tomatoes, stock, thawed spinach (squeezed) and sliced mushrooms. Season with oregano and basil, simmer 10 min.',
+    'Layer in a baking dish: sauce, lasagne sheets, repeat, finishing with sauce.',
+    'Top with mozzarella and parmesan. Bake 35-40 min until golden and the sheets are tender. Rest 10 min.'],
+  spagbolJar: [
+    'Dice the onion, soften in oil 3 min. Add the mince and brown well.',
+    'Add sliced mushrooms, cook 3 min. Pour in the pasta sauce and a dash of worcestershire (splash of red wine if open). Simmer 15 min.',
+    'Cook the spaghetti to packet time, drain.',
+    'Toss together and serve.'],
+  nankingBeef: [
+    'Slice the porterhouse thin. Toss with cornflour, the egg, soy and a splash of sherry if you have it. Rest 10 min.',
+    'Start the rice.',
+    'Hot wok with oil: sear the beef in batches until browned, set aside.',
+    'Fry the garlic 30 sec, add tomato sauce, worcestershire, curry powder and sugar with a splash of water. Simmer 2 min.',
+    'Return the beef, toss to coat, serve on rice.'],
+  sausagesVeg: [
+    'Fry or grill the sausages over medium heat, turning, 12-15 min.',
+    'Boil chunked potatoes 12-15 min, mash with milk and margarine.',
+    'Steam or boil the carrot and peas in the last 5 min.',
+    'Make up the gravy per the tin. Plate everything and pour over.'],
+  meatPie: [
+    'Oven to 200C. Dice the onion, soften, then brown the mince.',
+    'Add stock, tomato sauce, worcestershire, pepper and flour to thicken. Simmer 10 min until thick, cool slightly.',
+    'Line a pie dish with shortcrust, fill, lid with puff pastry, crimp and slash. Brush with milk.',
+    'Bake 25-30 min until deep golden.',
+    'Serve with mash, peas and gravy.'],
+  zucchiniSlice: [
+    'Oven to 180C. Grate the zucchini and carrot, squeeze out the moisture.',
+    'Dice and fry the onion, bacon and garlic until golden.',
+    'Whisk the eggs, stir in a cup of SR flour, the cheese, corn and everything else. Season.',
+    'Pour into a lined slice tin. Bake 30-35 min until set and golden. Cool 10 min before slicing.'],
+  chickenSoup: [
+    'Slice the leek, garlic, carrot, celery and zucchinis. Dice the swede and turnip.',
+    'Sweat the leek and garlic in a big pot 3 min.',
+    'Add all the veg, soup mix and stock. Simmer 45-60 min until the mix is tender.',
+    'Shred in the cooked chicken for the last 5 min. Season and serve.'],
+  coconutChicken: [
+    'Dice the onion, garlic and ginger, soften in oil. Add curry powder, cumin and turmeric, fry 1 min.',
+    'Add diced chicken thighs, coat and seal 4-5 min.',
+    'Stir in tomato paste, stock, coconut cream and chunked potato. Simmer 20-25 min until tender.',
+    'Start the rice while it simmers. Stir through peas and a dollop of yoghurt at the end.'],
+  meatloaf: [
+    'Oven to 180C. Soak the bread (torn) in a splash of milk, then mix with mince, diced onion, egg, worcestershire, celery and capsicum. Season.',
+    'Press into a loaf tin. Bake 30 min.',
+    'Mix the glaze: condensed milk, tomato sauce, dry mustard and brown sugar.',
+    'Pour the glaze over, bake another 25-30 min until cooked through (72C centre). Rest 10 min.'],
+  beefStirfry: [
+    'Start the rice. Slice all the veg.',
+    'Hot wok: sear the beef strips in batches, set aside.',
+    'Stir-fry the harder veg 2 min, then the rest 2 min more.',
+    'Return the beef with the taco seasoning and a splash of water. Toss 1 min, serve on rice.'],
   weetbixMilk: ['Bowl, Weet-Bix, milk. Breakfast of champions in 30 seconds.'],
   eggsMush: [
     'Slice the mushrooms, fry in butter over medium-high until golden, 4-5 min. Season.',
@@ -1030,13 +1115,20 @@ const SHORT = { chicken:'chicken', chickenSlices:'chicken slices', mince:'mince'
   padThaiKit:'pad thai kit', satayJar:'satay jar', cashewJar:'cashew sauce', kidneyBeans:'kidney beans',
   burritoKit:'burrito kit', guac:'guac', spanakopitaP:'spanakopita',
   massamanPaste:'massaman paste', coconutCream:'coconut cream', quesadillaPack:'quesadillas',
-  meatballs:'meatballs', basilSauce:'basilico sauce' };
+  meatballs:'meatballs', basilSauce:'basilico sauce',
+  lasagne:'lasagne', parmesan:'parmesan', mozzarella:'mozzarella', worcSauce:'worcestershire',
+  tomSauce:'tomato sauce', sausages:'sausages', gravox:'gravy', shortcrust:'shortcrust',
+  puffPastry:'puff pastry', peas:'peas', zucchini:'zucchini', leek:'leek', celery:'celery',
+  swede:'swede', turnip:'turnip', ginger:'ginger', snowPeas:'snow peas', soupMix:'soup mix',
+  bbqChicken:'bbq chook', chickenThighs:'chicken thighs', condensedMilk:'condensed milk', beefStrips:'beef strips' };
 const EMOJI = { spagbol:'🍝', butterchk:'🍛', greencurry:'🍲', padthai:'🍤', pieveg:'🥧', redcurry:'🌶️',
   satay:'🍜', kiev:'🍗', salmon:'🐟', steak:'🥩', schnitzel:'🍖', burritos:'🌯', nachos:'🧀',
   spanakopita:'🥬', gyoza:'🥟', korma:'🍚', cashewchk:'🥜', sweetsour:'🍍', tacobowls:'🌮',
   weetbixMilk:'🥛', eggsMush:'🍳', eggsAvo:'🥑', porridge:'🥣',
   wrapCCA:'🌯', couscousSalad:'🥗', pestoChicken:'🌿', smokyBeef:'🍠', lemonPepper:'🍋', beefRendang:'🍛',
-  massaman:'🥘', quesadillas:'🫓', spagMeatballs:'🧆' };
+  massaman:'🥘', quesadillas:'🫓', spagMeatballs:'🧆',
+  lasagneChk:'🍱', spagbolJar:'🍝', nankingBeef:'🥢', sausagesVeg:'🌭', meatPie:'🥧',
+  zucchiniSlice:'🥒', chickenSoup:'🍲', coconutChicken:'🥥', meatloaf:'🍖', beefStirfry:'🥡' };
 const AISLE_ICON = { 'Fresh Produce':'🥬', 'Meat & Seafood':'🥩', 'Dairy & Eggs':'🧀', 'Bakery':'🍞', 'Freezer':'🧊', 'Pantry':'🥫', 'Drinks, Spreads & Sauces':'🥤', 'Snacks':'🍿', 'Household':'🧻' };
 const $ = id => document.getElementById(id);
 const fmt = v => '$' + v.toFixed(2);
@@ -1316,6 +1408,15 @@ const RECEIPT_SYNONYMS = {
   'SODA WATER': 'sodaWater', 'SODA WTR': 'sodaWater', 'SPARKLING WATER': 'sodaWater', 'MINERAL WATER': 'sodaWater',
   'MARGARINE': 'butter', 'MARG': 'butter', 'MARG SPREAD': 'butter', 'CANOLA SPREAD': 'butter', 'MARG OLIVE': 'butter',
   'LAUNDRY LIQUID': 'washingLiquid', 'WASHING LIQUID': 'washingLiquid', 'DISHWASHING LIQUID': 'washingLiquid', 'DISH LIQUID': 'washingLiquid',
+  'LASAGNE': 'lasagne', 'LASAGNA': 'lasagne', 'PARMESAN': 'parmesan', 'MOZZARELLA': 'mozzarella',
+  'WORCESTERSHIRE': 'worcSauce', 'WORCESTER': 'worcSauce', 'TOMATO SAUCE': 'tomSauce', 'TOM SAUCE': 'tomSauce',
+  'THIN SAUSAGES': 'sausages', 'BBQ SAUSAGES': 'sausages', 'BEEF SAUSAGES': 'sausages',
+  'GRAVOX': 'gravox', 'GRAVY': 'gravox', 'SHORTCRUST': 'shortcrust', 'PUFF PASTRY': 'puffPastry',
+  'ZUCCHINI': 'zucchini', 'COURGETTE': 'zucchini', 'LEEK': 'leek', 'CELERY': 'celery',
+  'SWEDE': 'swede', 'TURNIP': 'turnip', 'SNOW PEAS': 'snowPeas', 'SOUP MIX': 'soupMix',
+  'BBQ CHICKEN': 'bbqChicken', 'HOT ROAST CHICKEN': 'bbqChicken', 'COOKED CHICKEN': 'bbqChicken',
+  'CHICKEN THIGH': 'chickenThighs', 'THIGH FILLETS': 'chickenThighs', 'CONDENSED MILK': 'condensedMilk',
+  'BEEF STRIPS': 'beefStrips', 'STIR FRY BEEF': 'beefStrips', 'BEEF STIR FRY': 'beefStrips',
 };
 
 // Words on receipts that carry no matching signal (brands, sizes, filler).

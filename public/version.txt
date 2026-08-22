@@ -1,4 +1,4 @@
-commit: spreads-2026-08-17
-build: 2026-08-17 spreads tab: vegemite, peanut butter, jam added; peanut butter moved to spreads aisle
+commit: partner-recipes-2026-08-17
+build: 2026-08-17 partner's 10 recipes added (2-serve base, halved from serves-4 pages); 22 new ingredients
 prices_updated: 2026-08-17
-prices_keys: 100
+prices_keys: 122
