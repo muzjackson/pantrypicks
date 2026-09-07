@@ -1,4 +1,4 @@
 commit: receipt-trueup-2026-09-07
-build: 2026-09-07 Aldi Whitfords receipt true-up (5 price updates, 12 confirmations)
+build: 2026-09-07 receipt true-up + tortillas renamed to Wraps
 prices_updated: 2026-09-07
 prices_keys: 122
