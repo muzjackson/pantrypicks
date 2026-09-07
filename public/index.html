@@ -1145,22 +1145,34 @@ function renderMeals() {
   if (exTab) {
     $('meals').innerHTML = EXTRAS_DEF.filter(d => d.cat === exTab.excat).map(d => {
       const g = ING[d.k]; if (!g) return '';
-      const on = !!extras[d.k];
+      const n = extras[d.k] || 0;
       const q = d.qty || 1;
-      const best = Math.min(g.w, g.c, g.a == null ? Infinity : g.a) * q;
-      return `<div class="meal ${on ? 'on' : ''}" data-k="${d.k}" data-q="${q}">
+      const best = Math.min(g.w, g.c, g.a == null ? Infinity : g.a) * (n || q);
+      return `<div class="meal ${n ? 'on' : ''}" data-k="${d.k}" data-q="${q}">
         <span class="tick">✓</span>
         <div class="emo">${EXTRA_EMOJI[d.k] || (d.cat === 'Snacks' ? '🍿' : '🧻')}</div>
-        <div class="nm">${g.name}${q > 1 ? ` ×${q}` : ''}</div>
-        <div class="ings">${g.packLabel} · ${fmt(best)}</div>
+        <div class="nm">${g.name}</div>
+        <div class="ings">${n > 1 ? n + '× ' : ''}${g.packLabel} · ${fmt(best)}</div>
+        ${n ? `<div class="mult" title="How many this week?">
+          <button class="mbtn xqbtn" data-k="${d.k}" data-d="-1" aria-label="fewer">−</button>
+          <span class="mval">×${n}</span>
+          <button class="mbtn xqbtn" data-k="${d.k}" data-d="1" aria-label="more">+</button>
+        </div>` : ''}
       </div>`;
     }).join('');
     const nx = exCount(exTab.excat);
     $('pickCount').textContent = nx ? `${nx} ${exTab.label.toLowerCase()} item${nx > 1 ? 's' : ''} on this week's shop` : `tap to add ${exTab.label.toLowerCase()} items to the shop`;
-    document.querySelectorAll('.meal').forEach(el => el.onclick = () => {
+    document.querySelectorAll('.meal').forEach(el => el.onclick = (ev) => {
+      if (ev.target.closest('.mult')) return;   // stepper clicks don't toggle the tile
       const k = el.dataset.k, q = parseInt(el.dataset.q, 10);
       if (extras[k]) { delete extras[k]; toast(`${ING[k].name} removed from the shop`); }
       else { extras[k] = q; toast(`${ING[k].name} added to this week's shop`); }
+      renderAll();
+    });
+    document.querySelectorAll('.xqbtn').forEach(b => b.onclick = (ev) => {
+      ev.stopPropagation();
+      const k = b.dataset.k;
+      extras[k] = Math.max(1, Math.min(9, (extras[k] || 1) + parseInt(b.dataset.d, 10)));
       renderAll();
     });
     return;
